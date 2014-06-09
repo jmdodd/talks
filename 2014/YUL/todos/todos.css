@@ -1,0 +1,11 @@
+.todos li {
+	margin-top: 1em;
+}
+
+.todos .completed {
+	text-decoration: line-through;
+}
+
+.todos img {
+	margin-left: 1em;
+}
