@@ -1,0 +1,605 @@
+<!doctype html>
+<html lang="en">
+
+	<head>
+		<meta charset="utf-8">
+
+		<title>Event Management with Backbone.js</title>
+
+		<meta name="description" content="A presentation on using Backbone.js with WordPress">
+		<meta name="author" content="Jennifer M. Dodd">
+
+		<meta name="apple-mobile-web-app-capable" content="yes" />
+		<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+
+		<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+
+		<link rel="stylesheet" href="/talks/reveal.js/css/reveal.min.css">
+		<link rel="stylesheet" href="/talks/reveal.js/css/theme/sky.css" id="theme">
+
+		<!-- For syntax highlighting -->
+		<link rel="stylesheet" href="/talks/reveal.js/lib/css/zenburn.css">
+
+		<!-- If the query includes 'print-pdf', use the PDF print sheet -->
+		<script>
+			document.write( '<link rel="stylesheet" href="/talks/reveal.js/css/print/' + ( window.location.search.match( /print-pdf/gi ) ? 'pdf' : 'paper' ) + '.css" type="text/css" media="print">' );
+		</script>
+
+		<!--[if lt IE 9]>
+		<script src="../../lib/js/html5shiv.js"></script>
+		<![endif]-->
+	</head>
+
+	<body>
+
+		<div class="reveal">
+
+			<!-- Any section element inside of this container is displayed as a slide -->
+			<div class="slides">
+				<section>
+					<h2>Event Management<br /><small>with Backbone.js</small></h2>
+					<p>
+						<small>Jennifer Dodd @jmdodd</small><br />
+						<small>Code Wrangler, Automattic</small>
+					</p>
+				</section>
+
+				<section>
+					<p>What is Backbone.js?</p>
+
+					<ul>
+						<li>JavaScript library</li>
+						<li>lightweight framework</li>
+						<li>RESTful JSON interface</li>
+					</ul>
+				</section>
+
+				<section>
+					<p>Why use Backbone.js?</p>
+
+					<ul>
+						<li class="fragment"><strong>Structure:</strong> MV* (model-view-whatever) pattern</li>
+						<li class="fragment"><strong>Tools:</strong> Underscore.js utility library</li>
+						<li class="fragment"><strong>Communications:</strong> flexible JSON</li>
+					</ul>
+				</section>
+
+				<section>
+					<h2>Structure: MV*</h2>
+				</section>
+
+				<section>
+					<p>(A little organization first)</p>
+
+					<pre><code>var ToDo = ToDo || {};
+
+ToDo.Models = ToDo.Models || {};
+
+ToDo.Collections = ToDo.Collections || {};
+
+ToDo.Views = ToDo.Views || {};</code></pre>
+				</section>
+
+				<section>
+					<p>Models</p>
+
+					<ul>
+						<li>information container</li>
+						<li>avoids jQuery.data()</li>
+						<li>tracks own state</li>
+					</ul>
+				</section>
+
+				<section>
+					<p>ToDo task model:</p>
+
+					<pre><code>ToDo.Models.ToDo = ( function( $, Backbone ) {
+	return Backbone.Model.extend( {
+		defaults: function() {
+			return {
+				id: 0,
+				title: '',
+				checked: false,
+				completedBy: false,
+				latestChange: 'fromBrowser'
+	 	 	};
+	 	}
+	} );
+} )( jQuery, Backbone );</code></pre>
+				</section>
+
+				<section>
+					<p>On the server:</p>
+
+					<pre><code>$todo = array(
+	'id'	       => $post->ID,
+	'title'	       => $post->post_title,
+	'checked'      => $checked,
+	'completedBy'  => $userdata,
+	'latestChange' => 'fromServer'
+);</code></pre>
+				</section>
+
+				<section>
+					<p>Views</p>
+
+					<ul>
+						<li>can be attached to models and/or collections</li>
+						<li>can contain subviews</li>
+						<li>use templates</li>
+						<li>interact with the DOM</li>
+					</ul>
+				</section>
+
+				<section>
+					<p>ToDo task view:</p>
+					<pre><code>ToDo.Views.ToDo = ( function( $, Backbone ) {
+	return Backbone.View.extend( {
+	 	model: ToDo.Models.ToDo,
+	 	tagName: 'li',
+ 	 	template: _.template( $( '#todos-template' ).html() ),
+
+	 	initialize: function() {
+	  	 	// Start by rendering the View
+	  	 	this.render();
+	  	},
+
+	 	render: function() {
+	 		this.$el.html( this.template( this.model.toJSON() ) );
+	 		return this;
+	  	}
+	} );
+} )( jQuery, Backbone );</code></pre>
+				</section>
+
+				<section>
+					<p>In the template:</p>
+
+					<pre><code><input type="checkbox" id="todos-todo-{{- id }}" class="on-completion" {{= checked }}>
+{{ if ( completedBy ) { }}
+	<span class="completed completed-by-{{- completedBy.username }}">
+{{ } }}
+{{= title }}
+{{ if ( completedBy ) { }}
+	</span>
+	<br /><img src="{{= completedBy.avatar }}" class="avatar avatar-16 photo" height="16" width="16" /> {{= completedBy.username }}
+{{ } }}</code></pre>
+				</section>
+
+				<section>
+					<p>Whatever: Collections</p>
+
+					<ul>
+						<li>organization of data</li>
+						<li>sortable</li>
+						<li>can be a collection of models or views</li>
+					</ul>
+				</section>
+
+				<section>
+					<p>ToDo task collection:</p>
+
+					<pre><code>ToDo.Collections.ToDos = ( function( $, Backbone ) {
+	return Backbone.Collection.extend( {
+		model: ToDo.Models.ToDo
+	} );
+} )( jQuery, Backbone );</code></pre>
+				</section>
+<!--
+
+				<section>
+					<h2>Starting the App</h2>
+				</section>
+
+				<section>
+					<p>What is the app, anyway?</p>
+
+					<ul>
+						<li>WordPress-powered tasklist ToDo widget</li>
+						<li>ability to complete tasks on the front-end</li>
+						<li>see other's updates to the list in real time</li>
+					</ul>
+				</section>
+
+				<section>
+					<h2>Demo</h2>
+				</section>
+
+				<section>
+					<p>Priming the browser</p>
+
+					<ul>
+						<li>add data so there is no delay</li>
+						<li>reduce async requests to the server</li>
+						<li>add to wp_footer to avoid page load delays</li>
+					</ul>
+				</section>
+
+				<section>
+					<p>On the server (wp_footer action):</p>
+
+					<pre><code><div style="display:none;" id="todos-data"><?php
+	$todos = self::get_todos_since();
+	echo json_encode( $todos, JSON_UNESCAPED_SLASHES );
+?></div>
+</code></pre>
+				</section>
+
+				<section>
+					<p>In the browser:</p>
+
+					<pre><code>jQuery( document ).ready( function( $ ) {
+	// Find the priming data
+	var primer = JSON.parse( $( '#todos-data' ).text() );
+	ToDo.toDos = new ToDo.Collections.ToDos( primer );
+...</code></pre>
+				</section>
+
+				<section>
+					<p>Add the JSON-encoded data to each widget in the DOM</p>
+
+					<pre><code>ToDo.WidgetModels = [];
+ToDo.WidgetViews = [];
+_.each( $( '.widget.todos' ), function( widget ) {
+	var data = $( widget ).find( 'div' );
+	var model = new ToDo.Models.Widget( {
+	 	widgetID: widget.id,
+	 	count: data.data( 'count' )
+	} );
+	var view = new ToDo.Views.Widget( {
+	 	model: model,
+	 	collection: ToDo.toDos
+	} );
+	ToDo.WidgetModels.push( model );
+	ToDo.WidgetViews.push( view );
+} );</code></pre>
+				</section>
+-->
+				<section>
+					<h2>Types of Events</h2>
+				</section>
+
+				<section>
+					<p>Models and Views and Collections</p>
+
+					<ul>
+						<li class="fragment">loosely linked</li>
+						<li class="fragment">events on Views (click, DOM, etc.) use events: {}</li>
+						<li class="fragment">communications between them use .listenTo() and .trigger()</li>
+					</ul>
+				</section>
+
+				<section>
+					<p>Actions on a View can update a Model</p>
+
+					<pre><code>ToDo.Views.ToDo = ( function( $, Backbone ) {
+...
+	events: {
+		'click .on-completion': 'onCompletion'
+	},
+
+	onCompletion: function( e ) {
+	 	if ( e.currentTarget.checked ) {
+	 	 	this.model.set( {
+	 	 	 	checked: 'checked',
+	 	 	 	completedBy: ToDo.currentUser,
+	 	 	 	latestChange: 'fromBrowser'
+	 	 	} );
+	 	} else {
+	 	 	this.model.set( {
+	 	 	 	checked: false,
+	 	 	 	completedBy: false,
+	 	 	 	latestChange: 'fromBrowser'
+	 	 	} );
+	 	}
+	}</code></pre>
+				</section>
+
+				<section>
+					<p>Updates to a Model can rerender a View</p>
+
+					<pre><code>ToDo.Views.ToDo = ( function( $, Backbone ) {
+...
+	model: ToDo.Models.ToDo,
+
+	initialize: function() {
+	 	// Update the View when the model changes
+	 	this.listenTo( this.model, 'change', this.render );
+	},</code></pre>
+				</section>
+
+				<section>
+					<p>Updates to a Model can update the server</p>
+
+					<pre><code>ToDo.Models.ToDo = ( function( $, Backbone ) {
+
+...
+	initialize: function() {
+		this.listenTo( this, 'change', this.update );
+	},
+	update: function() {
+	 	if ( this.get( 'latestChange' ) === 'fromBrowser' ) {
+	 	 	var data = {
+	 	 	 	action: 'todos_check',
+	 	 	 	id: this.id,
+	 	 	 	checked: this.get( 'checked' )
+	 	 	};</code></pre>
+				</section>
+
+				<section>
+					<pre><code>var jqXHR = $.ajax( {
+	dataType: 'json',
+	url: ToDo.ajaxurl,
+	xhrFields: {
+	 	withCredentials: true
+	},
+	data: data
+} )
+.done( function( response, textStatus, jqXHR ) {
+	ToDo.toDos.add( response.data[0], { merge: true } );
+} );</code></pre>
+				</section>
+
+				<section>
+					<p>Adding a Model to a Collection can add a View</p>
+
+					<pre><code>ToDo.Views.Widget = ( function( $, Backbone ) {
+...
+	initialize: function() {
+	 	this.listenTo( this.collection, 'add', this.addOne );
+	},
+
+	addOne: function( todo ) {
+	 	var view = new ToDo.Views.ToDo( {
+	 	 	model: todo
+	 	} );
+	 	this.$el.prepend( view.el );
+	 	return this;
+	},</code></pre>
+				</section>
+
+				<section>
+					<p>What about other people's actions?</p>
+
+					<ul>
+						<li class="fragment">server-push... <span class="fragment">nope</span></li>
+						<li class="fragment">polling... <span class="fragment">yup</span></li>
+					</ul>
+				</section>
+
+				<section>
+					<p>Polling in the browser sends an AJAX request,</p>
+
+					<pre><code>poll: function() {
+	var data = {
+	 	action: 'todos_poll',
+	 	since: ToDo.since
+	};
+
+	ToDo.current = Date.now();
+
+	var jqXHR = $.ajax( {
+	 	dataType: 'json',
+	 	url: ToDo.ajaxurl,
+	 	data: data
+	} )</code></pre>
+				</section>
+
+				<section>
+					<p>receives back an encoded JSON response,</p>
+
+					<pre><code>	.done( function( response, textStatus, jqXHR ) {
+	 	if ( 'undefined' != typeof response.data ) {
+	 	 	ToDo.since = ToDo.current;
+	 	 	for ( m = 0, dl = response.data.length; m < dl; m++ ) {
+	 	 	 	var todo = response.data[m];
+	 	 	 	ToDo.toDos.add( todo, { merge: true } );
+	 	 	}
+	 	}
+	} )</code></pre>
+				</section>
+
+				<section>
+					<p>and then sets the next AJAX poll event</p>
+
+					<pre><code>	.always( function() {
+	 	ToDo.Polling.poller = setTimeout( ToDo.Polling.poll, ToDo.Polling.pollInterval ); 
+	} );</code></pre>
+				</section>
+
+				<section>
+					<p>Polling on the server is a wp_ajax_ action</p>
+
+					<pre><code>add_action( 'wp_ajax_todos_poll', array( 'ToDos_Widget', 'poll' ) );
+
+public static function poll() {
+	$todos = array();
+	if ( isset( $_GET['since'] ) ) {
+	 	$since = absint( substr( $_GET['since'], 0, 10 ) ) - 3;
+	 	$min = time() - 24 * 60 * 60;
+	 	if ( $since < $min ) {
+	 	 	$since = $min;
+	 	}
+	 	$todos = self::get_todos_since( $since );
+	}
+
+	wp_send_json_success( $todos );
+}</code></pre>
+				</section>
+	
+				<section>
+					<p>Getting a new Model from the server:</p>
+
+					<ul>
+						<li>adds the model to the collection</li>
+						<li>adds a view for the new model</li>
+					</ul>
+				</section>
+
+				<section>
+					<p>Getting an updated Model from the server</p>
+
+					<ul>
+						<li>updates the model in the collection</li>
+						<li>updates the view on that model</li>
+					</ul>
+				</section>
+
+				<section>
+					<p>Custom Events within Backbone</p>
+
+					<pre><code>ToDo.dispatcher= _.clone( Backbone.Events );
+
+ToDo.dispatcher.trigger( 'toDo:server-update', { data: response.data } );
+// object.trigger(event, [*args])
+
+this.listenTo( ToDo.dispatcher, 'toDo:server-update', this.serverUpdated );
+// object.listenTo(other, event, callback)
+</code></pre>
+				</section>
+
+				<section>
+					<p>Why use custom events?</p>
+
+					<ul>
+						<li class="fragment">available to models, views, and collections</li>
+						<li class="fragment">creates a centralized event bus</li>
+						<li class="fragment">allows loosely coupled communications</li>
+						<li class="fragment">uses pseudo-namespacing</li>
+					</ul>
+				</section>
+
+				<section>
+					<p>Talking to jQuery (and the DOM)</p>
+
+					<pre><code>ToDo.appContainer = $( "#content" );
+
+ToDo.appContainer.trigger( 'toDo:data-received', data );
+
+ToDo.appContainer.on( 'toDo:data-received', function( data ) {
+	// Do something with data
+} );</code></pre>
+				</section>
+
+				<section>
+					<p>Why talk to jQuery?</p>
+
+					<ul>
+						<li class="fragment">fires a jQuery-catchable event on a DOM element</li>
+						<li class="fragment">use when adding/removing elements from the DOM</li>
+						<li class="fragment">increase ability of other jQuery plugins to extend your code</li>
+					</ul>
+				</section>
+
+				<section>
+					<p>Make it more familiar</p>
+
+					<pre><code>
+ToDo.actions = [];
+ToDo.currentActions = [];
+ToDo.doneActions = [];
+ToDo.doAction = function( hook ) {
+	if ( 'string' == typeof hook ) {
+		var args = Array.prototype.slice.call( arguments, 1 );
+		ToDo.currentActions.push( hook );
+		ToDo.appContainer.trigger( hook, args );
+		ToDo.doneActions.push( hook );
+		ToDo.currentActions.pop();
+	}
+};</code></pre>
+				</section>
+
+				<section>
+					<p>Add some helper functions</p>
+
+					<pre><code>ToDo.currentAction = function() {
+	l = this.currentActions.length;
+	if ( l > 0 ) {
+		return this.currentActions[ l - 1 ];
+	}
+	return false;
+}
+ToDo.didAction = function( hook ) {
+	if ( -1 === $.inArray( hook, this.doneActions ) ) {
+		return false;
+	}
+	return true;
+}</code></pre>
+				</section>
+
+				<section>
+					<p>Then we can do this in JavaScript</p>
+
+					<pre><code>ToDo.doAction( 'toDo:alertOn', data );
+
+ToDo.appContainer.on( 'toDo:alertOnce', function() {
+	if ( ! ToDo.didAction( 'toDo:alertOnce' ) {
+		// Do something once
+	}
+} );</code></pre>
+
+				</section>
+
+				<section>
+					<p>Communication Issues</p>
+
+					<ul>
+						<li class="fragment">Crosstalk: collisions on the server</li>
+						<li class="fragment">PEBKAC: collisions on the browser</li>
+					</ul>
+				</section>
+
+				<section>
+					<p>Communication Solutions</h2>
+
+					<ul>
+						<li class="fragment">mark models as coming from the client or server</li>
+						<li class="fragment">use server-side checking to avoid overwrites</li>
+						<li class="fragment">use client-side debouncing to avoid value-flipping</li>
+					</ul>
+				</section>
+
+				<section>
+					<h2>Questions?</h2>
+
+					<p><small>Slides: <a href="http://jmdodd.github.io/talks/2014/YUL/">http://jmdodd.github.io/talks/2014/YUL/</a><br />
+
+					ToDos: <a href="http://github.com/jmdodd/talks/tree/master/2014/YUL/todos">http://github.com/jmdodd/talks/tree/master/2014/YUL/todos</a></small></p>
+
+					<p><small><a href="http://automattic.com/work-with-us/">(We're hiring!)</a></small></p>
+				</section>
+			</div>
+
+		</div>
+
+		<script src="/talks/reveal.js/lib/js/head.min.js"></script>
+		<script src="/talks/reveal.js/js/reveal.min.js"></script>
+
+		<script>
+
+			// Full list of configuration options available here:
+			// https://github.com/hakimel/reveal.js#configuration
+			Reveal.initialize({
+				controls: true,
+				progress: true,
+				history: true,
+				center: true,
+
+				theme: Reveal.getQueryHash().theme, // available themes are in /css/theme
+				transition: Reveal.getQueryHash().transition || 'none', // default/cube/page/concave/zoom/linear/fade/none
+
+				// Optional libraries used to extend on reveal.js
+				dependencies: [
+					{ src: '/talks/reveal.js/lib/js/classList.js', condition: function() { return !document.body.classList; } },
+					{ src: '/talks/reveal.js/plugin/markdown/marked.js', condition: function() { return !!document.querySelector( '[data-markdown]' ); } },
+					{ src: '/talks/reveal.js/plugin/markdown/markdown.js', condition: function() { return !!document.querySelector( '[data-markdown]' ); } },
+					{ src: '/talks/reveal.js/plugin/highlight/highlight.js', async: true, callback: function() { hljs.initHighlightingOnLoad(); } },
+					{ src: '/talks/reveal.js/plugin/zoom-js/zoom.js', async: true, condition: function() { return !!document.body.classList; } },
+					{ src: '/talks/reveal.js/plugin/notes/notes.js', async: true, condition: function() { return !!document.body.classList; } }
+				]
+			});
+
+		</script>
+
+	</body>
+</html>
