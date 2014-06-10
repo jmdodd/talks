@@ -75,9 +75,9 @@
 
 ToDo.Models = ToDo.Models || {};
 
-ToDo.Collections = ToDo.Collections || {};
+ToDo.Views = ToDo.Views || {};
 
-ToDo.Views = ToDo.Views || {};</code></pre>
+ToDo.Collections = ToDo.Collections || {};</code></pre>
 				</section>
 
 				<section>
@@ -95,7 +95,7 @@ ToDo.Views = ToDo.Views || {};</code></pre>
 
 					<pre><code>ToDo.Models.ToDo = ( function( $, Backbone ) {
 	return Backbone.Model.extend( {
-		defaults: function() {
+	 	defaults: function() {
 			return {
 				id: 0,
 				title: '',
@@ -111,24 +111,43 @@ ToDo.Views = ToDo.Views || {};</code></pre>
 				<section>
 					<p>On the server:</p>
 
-					<pre><code>$todo = array(
-	'id'	       => $post->ID,
-	'title'	       => $post->post_title,
-	'checked'      => $checked,
-	'completedBy'  => $userdata,
-	'latestChange' => 'fromServer'
-);</code></pre>
+					<pre><code>foreach( $posts as $post ) {
+	$todo = array(
+		'id'	       => $post->ID,
+		'title'	       => $post->post_title,
+		'checked'      => $checked,
+		'completedBy'  => $userdata,
+		'latestChange' => 'fromServer',
+	);
+	$todos[] = $todo;
+}
+wp_send_json_success( $todos );</code></pre>
 				</section>
 
 				<section>
 					<p>Views</p>
 
 					<ul>
+						<li>in the DOM: i.e. what you see in the browser</li>
+						<li>provide the user action interface: i.e. users can do stuff</li>
 						<li>can be attached to models and/or collections</li>
 						<li>can contain subviews</li>
 						<li>use templates</li>
-						<li>interact with the DOM</li>
 					</ul>
+				</section>
+
+				<section>
+					<p>In the template:</p>
+
+					<pre><code><input type="checkbox" id="todos-todo-{{- id }}" class="on-completion" {{= checked }}>
+{{ if ( completedBy ) { }}
+	<span class="completed completed-by-{{- completedBy.username }}">
+{{ } }}
+{{= title }}
+{{ if ( completedBy ) { }}
+	</span>
+	<br /><img src="{{= completedBy.avatar }}" class="avatar avatar-16 photo" height="16" width="16" /> {{= completedBy.username }}
+{{ } }}</code></pre>
 				</section>
 
 				<section>
@@ -153,21 +172,7 @@ ToDo.Views = ToDo.Views || {};</code></pre>
 				</section>
 
 				<section>
-					<p>In the template:</p>
-
-					<pre><code><input type="checkbox" id="todos-todo-{{- id }}" class="on-completion" {{= checked }}>
-{{ if ( completedBy ) { }}
-	<span class="completed completed-by-{{- completedBy.username }}">
-{{ } }}
-{{= title }}
-{{ if ( completedBy ) { }}
-	</span>
-	<br /><img src="{{= completedBy.avatar }}" class="avatar avatar-16 photo" height="16" width="16" /> {{= completedBy.username }}
-{{ } }}</code></pre>
-				</section>
-
-				<section>
-					<p>Whatever: Collections</p>
+					<p>Collections</p>
 
 					<ul>
 						<li>organization of data</li>
@@ -181,10 +186,56 @@ ToDo.Views = ToDo.Views || {};</code></pre>
 
 					<pre><code>ToDo.Collections.ToDos = ( function( $, Backbone ) {
 	return Backbone.Collection.extend( {
-		model: ToDo.Models.ToDo
+	 	model: ToDo.Models.ToDo
 	} );
 } )( jQuery, Backbone );</code></pre>
 				</section>
+
+				<section>
+					<h2>Events</h2>
+				</section>
+
+				<section>
+					<p>Events</p>
+
+					<ul>
+						<li>the reason we use Backbone</li>
+						<li>all interactions are built around using events on models, views, and collections</li>
+					</ul>
+				</section>
+
+				<section>
+					<p>Some common events are:</p>
+
+					<ul>
+						<li class="fragment"><strong>add</strong> when a model is added to a collection</li>
+						<li class="fragment"><strong>remove</strong> when a model is removed from a collection</li>
+						<li class="fragment"><strong>reset</strong> when a collection's contents are replaced</li>
+						<li class="fragment"><strong>change</strong> when a model's attributes have changed</li>
+						<li class="fragment"><strong>change:[attribute]</strong> when a single attribute of a model has changed</li>
+					</ul>
+				</section>
+
+				<section>
+					<p>What does an event look like?</p>
+
+					<ul>
+						<li>generally speaking, an event is something you are doing with a model or collection</li>
+						<li>a function (like <code>model.set</code>, <code>collection.reset</code>) triggers an event</li>
+						<li>to avoid triggering an event, pass <code>{ silent: true }</code> as an option</li>
+						<li>it is <em>better</em> to pass a flag in options to avoid that event</li>
+					</ul>
+				</section>
+
+				<section>
+					<p>Events are what make Backbone powerful</p>
+
+					<ul>
+						<li>instead of using <code>.bind()</code> and <code>.on()</code>, we try to use <code>.listenTo()</code></li>
+						<li>avoid JS memory leaks</li>
+					</ul>
+				</section>
+
 <!--
 
 				<section>
@@ -264,7 +315,7 @@ _.each( $( '.widget.todos' ), function( widget ) {
 
 					<ul>
 						<li class="fragment">loosely linked</li>
-						<li class="fragment">events on Views (click, DOM, etc.) use events: {}</li>
+						<li class="fragment">events on Views (click, DOM, etc.)</li>
 						<li class="fragment">communications between them use .listenTo() and .trigger()</li>
 					</ul>
 				</section>
@@ -309,7 +360,7 @@ _.each( $( '.widget.todos' ), function( widget ) {
 				</section>
 
 				<section>
-					<p>Updates to a Model can update the server</p>
+					<p>Updates to a Model package up the change</p>
 
 					<pre><code>ToDo.Models.ToDo = ( function( $, Backbone ) {
 
@@ -327,6 +378,8 @@ _.each( $( '.widget.todos' ), function( widget ) {
 				</section>
 
 				<section>
+					<p>and get a response from the server</p>
+
 					<pre><code>var jqXHR = $.ajax( {
 	dataType: 'json',
 	url: ToDo.ajaxurl,
@@ -426,7 +479,7 @@ public static function poll() {
 	wp_send_json_success( $todos );
 }</code></pre>
 				</section>
-	
+
 				<section>
 					<p>Getting a new Model from the server:</p>
 
@@ -443,6 +496,10 @@ public static function poll() {
 						<li>updates the model in the collection</li>
 						<li>updates the view on that model</li>
 					</ul>
+				</section>
+
+				<section>
+					<h2>Demo</h2>
 				</section>
 
 				<section>
@@ -534,7 +591,7 @@ ToDo.didAction = function( hook ) {
 
 ToDo.appContainer.on( 'toDo:alertOnce', function() {
 	if ( ! ToDo.didAction( 'toDo:alertOnce' ) {
-		// Do something once
+	 	// Do something once
 	}
 } );</code></pre>
 
@@ -546,6 +603,7 @@ ToDo.appContainer.on( 'toDo:alertOnce', function() {
 					<ul>
 						<li class="fragment">Crosstalk: collisions on the server</li>
 						<li class="fragment">PEBKAC: collisions on the browser</li>
+						<li class="fragment">Chaos: events hit the server/browser out of order</li>
 					</ul>
 				</section>
 
@@ -556,17 +614,19 @@ ToDo.appContainer.on( 'toDo:alertOnce', function() {
 						<li class="fragment">mark models as coming from the client or server</li>
 						<li class="fragment">use server-side checking to avoid overwrites</li>
 						<li class="fragment">use client-side debouncing to avoid value-flipping</li>
+						<li class="fragment">queue transactions and only perform the last one in a series of same actions</li>
+						<li class="fragment">serialize based on browser-time to avoid chaos</li>
 					</ul>
 				</section>
 
 				<section>
 					<h2>Questions?</h2>
 
-					<p><small>Slides: <a href="http://jmdodd.github.io/talks/2014/YUL/">http://jmdodd.github.io/talks/2014/YUL/</a><br />
+					<p>Slides: <a href="http://jmdodd.github.io/talks/2014/YUL/">http://jmdodd.github.io/talks/2014/YUL/</a><br />
 
-					ToDos: <a href="http://github.com/jmdodd/talks/tree/master/2014/YUL/todos">http://github.com/jmdodd/talks/tree/master/2014/YUL/todos</a></small></p>
+					ToDos: <a href="http://bit.ly/1l4JHsA">http://bit.ly/1l4JHsA</a></p>
 
-					<p><small><a href="http://automattic.com/work-with-us/">(We're hiring!)</a></small></p>
+					<p><a href="http://automattic.com/work-with-us/">(We're hiring!)</a></p>
 				</section>
 			</div>
 
