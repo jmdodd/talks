@@ -45,7 +45,9 @@ ToDo.Models.ToDo = ( function( $, Backbone ) {
 					data: data
 				} )
 				.done( function( response, textStatus, jqXHR ) {
-					ToDo.toDos.add( response.data[0], { merge: true, silent: true } );
+					var todo = response.data[0];
+					todo.source = 'check';
+					ToDo.toDos.add( todo, { merge: true } );
 				} )
 				.always( function() {
 				} );
