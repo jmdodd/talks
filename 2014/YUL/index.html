@@ -99,9 +99,10 @@ ToDo.Collections = ToDo.Collections || {};</code></pre>
 			return {
 				id: 0,
 				title: '',
-				checked: false,
+				checked: '',
 				completedBy: false,
-				latestChange: 'fromBrowser'
+				latestChange: 0,
+				source: 'local'
 	 	 	};
 	 	}
 	} );
@@ -111,13 +112,13 @@ ToDo.Collections = ToDo.Collections || {};</code></pre>
 				<section>
 					<p>On the server:</p>
 
-					<pre><code>foreach( $posts as $post ) {
+					<pre><code>foreach ( (array) $posts as $post ) {
 	$todo = array(
 		'id'	       => $post->ID,
 		'title'	       => $post->post_title,
 		'checked'      => $checked,
 		'completedBy'  => $userdata,
-		'latestChange' => 'fromServer',
+		'latestChange' => $at,
 	);
 	$todos[] = $todo;
 }
@@ -139,7 +140,7 @@ wp_send_json_success( $todos );</code></pre>
 				<section>
 					<p>In the template:</p>
 
-					<pre><code><input type="checkbox" id="todos-todo-{{- id }}" class="on-completion" {{= checked }}>
+					<pre><code><input type="checkbox" id="todos-todo-{{- id }}" class="on-completion" {{- checked }}>
 {{ if ( completedBy ) { }}
 	<span class="completed completed-by-{{- completedBy.username }}">
 {{ } }}
@@ -334,13 +335,13 @@ _.each( $( '.widget.todos' ), function( widget ) {
 	 	 	this.model.set( {
 	 	 	 	checked: 'checked',
 	 	 	 	completedBy: ToDo.currentUser,
-	 	 	 	latestChange: 'fromBrowser'
+				source: 'local'
 	 	 	} );
 	 	} else {
 	 	 	this.model.set( {
-	 	 	 	checked: false,
+	 	 	 	checked: '',
 	 	 	 	completedBy: false,
-	 	 	 	latestChange: 'fromBrowser'
+				source: 'local'
 	 	 	} );
 	 	}
 	}</code></pre>
@@ -369,7 +370,7 @@ _.each( $( '.widget.todos' ), function( widget ) {
 		this.listenTo( this, 'change', this.update );
 	},
 	update: function() {
-	 	if ( this.get( 'latestChange' ) === 'fromBrowser' ) {
+	 	if ( this.get( 'source' ) === 'local' ) {
 	 	 	var data = {
 	 	 	 	action: 'todos_check',
 	 	 	 	id: this.id,
@@ -389,6 +390,8 @@ _.each( $( '.widget.todos' ), function( widget ) {
 	data: data
 } )
 .done( function( response, textStatus, jqXHR ) {
+	var todo = response.data[0];
+	todo.source = 'check';
 	ToDo.toDos.add( response.data[0], { merge: true } );
 } );</code></pre>
 				</section>
@@ -446,6 +449,7 @@ _.each( $( '.widget.todos' ), function( widget ) {
 	 	 	ToDo.since = ToDo.current;
 	 	 	for ( m = 0, dl = response.data.length; m < dl; m++ ) {
 	 	 	 	var todo = response.data[m];
+				todo.source = 'poll';
 	 	 	 	ToDo.toDos.add( todo, { merge: true } );
 	 	 	}
 	 	}
