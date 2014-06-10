@@ -133,7 +133,7 @@ class ToDos_Widget extends WP_Widget {
 		<?php
 		if ( is_user_logged_in() ) {
 			?>
-			<input type="checkbox" id="todos-todo-{{- id }}" class="on-completion" {{= checked }}>
+			<input type="checkbox" id="todos-todo-{{- id }}" class="on-completion" {{- checked }}>
 			{{ if ( completedBy ) { }}
 			<span class="completed completed-by-{{- completedBy.username }}">
 			{{ } }}{{= title }}{{ if ( completedBy ) { }}
@@ -205,9 +205,15 @@ class ToDos_Widget extends WP_Widget {
 				wp_send_json_error();
 			}
 
-			if ( $checked ) {
-				update_post_meta( $todo_id, self::$completed_by, $current_user->ID );
-			} else {
+			$current = get_post_meta( $todo_id, self::$completed_by, true );
+
+			// Only allow if not already claimed
+			if ( $checked && $current === '' ) {
+				update_post_meta( $todo_id, self::$completed_by, array(
+					'user_id' => $current_user->ID,
+					'at'      => time(),
+				) );
+			} elseif ( ! $checked ) {
 				delete_post_meta( $todo_id, self::$completed_by );
 			}
 
@@ -269,8 +275,15 @@ class ToDos_Widget extends WP_Widget {
 	public static function format( $posts ) {
 		$todos = array();
 		foreach ( $posts as $post ) {
-			$user_id = get_post_meta( $post->ID, self::$completed_by, true );
-			$checked = ( $user_id === '' ) ? false : 'checked';
+			$meta = get_post_meta( $post->ID, self::$completed_by, true );
+			if ( $meta !== '' ) {
+				$user_id = $meta['user_id'];
+				$at      = $meta['at'];
+			} else {
+				$user_id = '';
+				$at      = 0;
+			}
+			$checked = ( $user_id === '' ) ? '' : 'checked';
 
 			// Get a little user data
 			$user = get_user_by( 'id', $user_id );
@@ -281,7 +294,7 @@ class ToDos_Widget extends WP_Widget {
 				'title'        => utf8_encode( apply_filters( 'the_title', $post->post_title ) ),
 				'checked'      => $checked,
 				'completedBy'  => $userdata,
-				'latestChange' => 'fromServer'
+				'latestChange' => $at,
 			);
 			$todos[] = $todo;
 		}

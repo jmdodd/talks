@@ -15,9 +15,10 @@ ToDo.Models.ToDo = ( function( $, Backbone ) {
 			return {
 				id: 0,
 				title: '',
-				checked: false,
+				checked: '',
 				completedBy: false,
-				latestChange: 'fromBrowser'
+				latestChange: 0,
+				source: 'local'
 			}
 		},
 
@@ -28,7 +29,7 @@ ToDo.Models.ToDo = ( function( $, Backbone ) {
 
 		// Send the AJAX to WP
 		update: function() {
-			if ( this.get( 'latestChange' ) === 'fromBrowser' ) {
+			if ( this.get( 'source' ) == 'local' ) {
 				// wp_ajax_(action) format
 				var data = {
 					action: 'todos_check',
@@ -44,7 +45,6 @@ ToDo.Models.ToDo = ( function( $, Backbone ) {
 					data: data
 				} )
 				.done( function( response, textStatus, jqXHR ) {
-					// Assume the browser already has the right version
 					ToDo.toDos.add( response.data[0], { merge: true, silent: true } );
 				} )
 				.always( function() {
@@ -100,13 +100,13 @@ ToDo.Views.ToDo = ( function( $, Backbone ) {
 				this.model.set( {
 					checked: 'checked',
 					completedBy: ToDo.currentUser,
-					latestChange: 'fromBrowser'
+					source: 'local'
 				} );
 			} else {
 				this.model.set( {
-					checked: false,
+					checked: '',
 					completedBy: false,
-					latestChange: 'fromBrowser'
+					source: 'local'
 				} );
 			}
 		}
@@ -181,6 +181,7 @@ ToDo.Polling = ( function( $, Backbone ) {
 					// Process the returned poll data
 					for ( m = 0, dl = response.data.length; m < dl; m++ ) {
 						var todo = response.data[m];
+						todo.source = 'poll';
 						ToDo.toDos.add( todo, { merge: true } );
 					}
 				}
@@ -192,8 +193,6 @@ ToDo.Polling = ( function( $, Backbone ) {
 		}
 	}
 } )( jQuery, Backbone );
-
-
 
 jQuery( document ).ready( function( $ ) {
 	// Find the priming data
