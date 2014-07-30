@@ -20,6 +20,26 @@
 		<!-- For syntax highlighting -->
 		<link rel="stylesheet" href="/talks/reveal.js/lib/css/zenburn.css">
 
+		<!-- For background images -->
+		<style type="text/css">
+			.image-background {
+				background: rgba( 173, 217, 228, 0.7 );
+				background: -moz-radial-gradient(center, circle cover, rgba( 247, 251, 252, 0.7 ) 0%, rgba( 173, 217, 228, 0.7 ) 100%);
+				background: -webkit-gradient(radial, center center, 0px, center center, 100%, color-stop(0%, rgba( 247, 251, 252, 0.7 )), color-stop(100%, rgba( 173, 217, 228, 0.7 )));
+				background: -webkit-radial-gradient(center, circle cover, rgba( 247, 251, 252, 0.7 ) 0%, rgba( 173, 217, 228, 0.7 ) 100%);
+				background: -o-radial-gradient(center, circle cover, rgba( 247, 251, 252, 0.7 ) 0%, rgba( 173, 217, 228, 0.7 ) 100%);
+				background: -ms-radial-gradient(center, circle cover, rgba( 247, 251, 252, 0.7 ) 0%, rgba( 173, 217, 228, 0.7 ) 100%);
+				background: radial-gradient(center, circle cover, rgba( 247, 251, 252, 0.7 ) 0%, rgba( 173, 217, 228, 0.7 ) 100%);
+				background-color: rgba( 247, 251, 252, 0.7 );
+				color: #333333;
+				padding: 1em 2em !important;
+			}
+			p.credit {
+				font-size: 0.5em;
+				padding-top: 2em;
+			}
+		</style>
+
 		<!-- If the query includes 'print-pdf', use the PDF print sheet -->
 		<script>
 			document.write( '<link rel="stylesheet" href="/talks/reveal.js/css/print/' + ( window.location.search.match( /print-pdf/gi ) ? 'pdf' : 'paper' ) + '.css" type="text/css" media="print">' );
@@ -68,32 +88,34 @@
 					<h2>Structure: MV*</h2>
 				</section>
 
-				<section>
-					<p><a href="https://www.flickr.com/photos/epsos/5575089139" title="Trash Recycling with Disposal Containers by epSos .de, on Flickr"><img src="https://farm6.staticflickr.com/5257/5575089139_ffec7b5846.jpg" width="500" height="333" alt="Trash Recycling with Disposal Containers"></a></p>
+				<section data-background="http://farm6.staticflickr.com/5257/5575089139_ffec7b5846_b.jpg">
+					<div class="image-background">
+						<p>Organization</p>
 
-					<p>(A little organization first)</p>
-
-					<pre><code>var ToDo = ToDo || {};
+						<pre><code>var ToDo = ToDo || {};
 
 ToDo.Models = ToDo.Models || {};
 
 ToDo.Views = ToDo.Views || {};
 
 ToDo.Collections = ToDo.Collections || {};</code></pre>
+
+						<p class="credit"><a href="http://www.flickr.com/photos/epsos/5575089139" title="Trash Recycling with Disposal Containers by epSos.de, on Flickr">Trash Recycling with Disposal Containers by epSos.de, on Flickr</a></p>
+					</div>
 				</section>
 
-				<section>
-					<p><a href="https://www.flickr.com/photos/beckstei/6038000941" title="Model A by Barbara Eckstein, on Flickr"><img src="https://farm7.staticflickr.com/6184/6038000941_628e788f80.jpg" width="500" height="356" alt="Model A"></a></p>
+				<section data-background="http://farm7.staticflickr.com/6184/6038000941_628e788f80_b.jpg">
+					<div class="image-background">
+						<p>Models</p>
 
+						<ul>
+							<li>information container</li>
+							<li>avoids jQuery.data()</li>
+							<li>tracks own state</li>
+						</ul>
 
-					<p>Models</p>
-
-					<ul>
-						<li>information container</li>
-						<li>avoids jQuery.data()</li>
-						<li>tracks own state</li>
-					</ul>
-
+						<p class="credit"><a href="http://www.flickr.com/photos/beckstei/6038000941" title="Model A by Barbara Eckstein, on Flickr">Model A by Barbara Eckstein, on Flickr</a></p>
+					</div>
 				</section>
 
 				<section>
@@ -131,18 +153,20 @@ ToDo.Collections = ToDo.Collections || {};</code></pre>
 wp_send_json_success( $todos );</code></pre>
 				</section>
 
-				<section>
-					<p><a href="https://www.flickr.com/photos/best_photo/2354313463" title="Beach at Grand Mirage - BALI by Donald Man, on Flickr"><img src="https://farm3.staticflickr.com/2227/2354313463_90556a7eb0.jpg" width="500" height="335" alt="Beach at Grand Mirage - BALI"></a></p>
+				<section data-background="http://farm3.staticflickr.com/2227/2354313463_2141025236_o.jpg">
+					<div class="image-background">
+						<p>Views</p>
 
-					<p>Views</p>
+						<ul>
+							<li>in the DOM: i.e. what you see in the browser</li>
+							<li>provide the user action interface: i.e. users can do stuff</li>
+							<li>can be attached to models and/or collections</li>
+							<li>can contain subviews</li>
+							<li>use templates</li>
+						</ul>
 
-					<ul>
-						<li>in the DOM: i.e. what you see in the browser</li>
-						<li>provide the user action interface: i.e. users can do stuff</li>
-						<li>can be attached to models and/or collections</li>
-						<li>can contain subviews</li>
-						<li>use templates</li>
-					</ul>
+						<p class="credit"><a href="http://www.flickr.com/photos/best_photo/2354313463" title="Beach at Grand Mirage - BALI by Donald Man, on Flickr">Beach at Grand Mirage - BALI by Donald Man, on Flickr</a></p>
+					</div>
 				</section>
 
 				<section>
@@ -180,16 +204,18 @@ wp_send_json_success( $todos );</code></pre>
 } )( jQuery, Backbone );</code></pre>
 				</section>
 
-				<section>
-					<p><a href="https://www.flickr.com/photos/simononly/3126742550" title="star wars vintage figure collection (closer) by Simon Q, on Flickr"><img src="https://farm4.staticflickr.com/3180/3126742550_c13519234d.jpg" width="500" height="375" alt="star wars vintage figure collection (closer)"></a></p>
+				<section data-background="http://farm4.staticflickr.com/3180/3126742550_c13519234d_b.jpg">
+					<div class="image-background">
+						<p>Collections</p>
 
-					<p>Collections</p>
+						<ul>
+							<li>organization of data</li>
+							<li>sortable</li>
+							<li>can be a collection of models or views</li>
+						</ul>
 
-					<ul>
-						<li>organization of data</li>
-						<li>sortable</li>
-						<li>can be a collection of models or views</li>
-					</ul>
+						<p class="credit"><a href="http://www.flickr.com/photos/simononly/3126742550" title="star wars vintage figure collection (closer) by Simon Q, on Flickr">star wars vintage figure collection (closer) by Simon Q, on Flickr</a></p>
+					</div>
 				</section>
 
 				<section>
@@ -206,15 +232,17 @@ wp_send_json_success( $todos );</code></pre>
 					<h2>Events</h2>
 				</section>
 
-				<section>
-					<p><a href="https://www.flickr.com/photos/68512679@N03/7012024705" title="hockey fighting - MAYBE THE NHL NEEDS A PARENTAL ADVISORY BEFORE GAMES. by Blind Nomad, on Flickr"><img src="https://farm8.staticflickr.com/7272/7012024705_6aeaea68b3.jpg" width="500" height="375" alt="hockey fighting - MAYBE THE NHL NEEDS A PARENTAL ADVISORY BEFORE GAMES."></a></p>
+				<section data-background="http://farm5.staticflickr.com/4039/4367000814_c3d4023f15_b.jpg">
+					<div class="image-background">
+						<p>Events</p>
 
-					<p>Events</p>
+						<ul>
+							<li>the reason we use Backbone</li>
+							<li>all interactions are built around using events on models, views, and collections</li>
+						</ul>
 
-					<ul>
-						<li>the reason we use Backbone</li>
-						<li>all interactions are built around using events on models, views, and collections</li>
-					</ul>
+						<p class="credit"><a href="http://www.flickr.com/photos/syume/4367000814" title="Inside Canada Hockey Place by s.yume, on Flickr">Inside Canada Hockey Place by s.yume, on Flickr</a></p>
+					</div>
 				</section>
 
 				<section>
