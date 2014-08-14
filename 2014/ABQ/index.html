@@ -1,0 +1,495 @@
+<!doctype html>
+<html lang="en">
+
+	<head>
+		<meta charset="utf-8">
+
+		<title>Digital Document Preservation with WordPress: Don't Lose Your Data</title>
+
+		<meta name="description" content="A presentation on preserving external data by aggregating it in WordPress">
+		<meta name="author" content="Jennifer M. Dodd">
+
+		<meta name="apple-mobile-web-app-capable" content="yes" />
+		<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+
+		<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+
+		<link rel="stylesheet" href="/talks/reveal.js/css/reveal.min.css">
+		<link rel="stylesheet" href="/talks/reveal.js/css/theme/sky.css" id="theme">
+
+		<!-- For syntax highlighting -->
+		<link rel="stylesheet" href="/talks/reveal.js/lib/css/zenburn.css">
+
+		<!-- For background images -->
+		<style type="text/css">
+			.image-background {
+				background: rgba( 173, 217, 228, 0.7 );
+				background: -moz-radial-gradient(center, circle cover, rgba( 247, 251, 252, 0.7 ) 0%, rgba( 173, 217, 228, 0.7 ) 100%);
+				background: -webkit-gradient(radial, center center, 0px, center center, 100%, color-stop(0%, rgba( 247, 251, 252, 0.7 )), color-stop(100%, rgba( 173, 217, 228, 0.7 )));
+				background: -webkit-radial-gradient(center, circle cover, rgba( 247, 251, 252, 0.7 ) 0%, rgba( 173, 217, 228, 0.7 ) 100%);
+				background: -o-radial-gradient(center, circle cover, rgba( 247, 251, 252, 0.7 ) 0%, rgba( 173, 217, 228, 0.7 ) 100%);
+				background: -ms-radial-gradient(center, circle cover, rgba( 247, 251, 252, 0.7 ) 0%, rgba( 173, 217, 228, 0.7 ) 100%);
+				background: radial-gradient(center, circle cover, rgba( 247, 251, 252, 0.7 ) 0%, rgba( 173, 217, 228, 0.7 ) 100%);
+				background-color: rgba( 247, 251, 252, 0.7 );
+				color: #333333;
+				padding: 1em 2em !important;
+			}
+			p.credit {
+				font-size: 0.5em;
+				padding-top: 2em;
+			}
+		</style>
+
+		<!-- If the query includes 'print-pdf', use the PDF print sheet -->
+		<script>
+			document.write( '<link rel="stylesheet" href="/talks/reveal.js/css/print/' + ( window.location.search.match( /print-pdf/gi ) ? 'pdf' : 'paper' ) + '.css" type="text/css" media="print">' );
+		</script>
+
+		<!--[if lt IE 9]>
+		<script src="../../lib/js/html5shiv.js"></script>
+		<![endif]-->
+	</head>
+
+	<body>
+
+		<div class="reveal">
+
+			<!-- Any section element inside of this container is displayed as a slide -->
+			<div class="slides">
+				<section>
+					<h2>Digital Document Preservation with WordPress<br /><small>Don't Lose Your Data</small></h2>
+					<p>
+						<small>Jennifer Dodd @jmdodd</small><br />
+						<small>Code Wrangler, Automattic</small>
+					</p>
+				</section>
+
+				<section>
+					<p>What is your story?</p>
+				</section>
+
+				<section>
+					<p>What is your digital trail?</p>
+				</section>
+
+				<section>
+					<p><a href="http://www.domo.com/learn/"><img src="http://www.domo.com.s3.amazonaws.com/blog/wp-content/uploads/2014/04/DataNeverSleeps_2.0_v2.jpg" alt="infographic" /></a></p>
+				</section>
+
+				<section>
+					<p>Why use WordPress?</p>
+
+					<ul>
+						<li class="fragment"><strong>License:</strong> GPL</li>
+						<li class="fragment"><strong>Tools:</strong> Import/Export, Plugins</li>
+						<li class="fragment"><strong>Features:</strong> Custom Post Types and Taxonomies, Media Library</li>
+					</ul>
+				</section>
+
+				<section>
+					<h2>The Easy Way</h2>
+				</section>
+
+				<section>
+					<p>Backups come in many formats</p>
+
+					<ul>
+						<li>MySQL dumpfile</li>
+						<li>Non-MySQL dumpfile</li>
+						<li>One massive export file</li>
+						<li>Many files</li>
+					</ul>
+				</section>
+
+				<section>
+					<p>WordPress Imports</p>
+
+					<p>The Codex: <a href="http://codex.wordpress.org/Importing_Content">http://codex.wordpress.org/Importing_Content</a></p>
+
+					<p>The Plugin Repository: <a href="http://wordpress.org/plugins/">http://wordpress.org/plugins/</a></p>
+				</section>
+
+				<section>
+					<p>Use a plugin to import old content and/or aggregate new content</p>
+				</section>
+
+				<section>
+					<p>Use an online service or browser tool to repost content to WordPress from other external services:</p>
+
+					<p class="fragment">Automatic: <a href="http://ifttt.com/">IFTTT</a><br />
+					Manual: <a href="http://jetpack.me/support/sharing/">Jetpack Sharing</a>, <a href="http://codex.wordpress.org/Press_This">Press This</a>, <a href="http://www.addthis.com/">AddThis</a>, <a href="http://www.sharethis.com/">ShareThis</a></p>
+				</section>
+
+				<section>
+					<p>Worst (recoverable) case scenario: the walled garden</p>
+				</section>
+
+				<section>
+					<p>Roll your own "scraping" service</p>
+
+					<p><a href="http://wordpress.org/plugins/import-html-pages/">HTML Import 2</a> + a "website downloader"</p>
+				</section>
+
+				<section>
+					<p>Why did my import fail?</p>
+
+					<ul>
+						<li class="fragment">Incorrect or corrupt file format or database</li>
+						<li class="fragment">Memory/CPU hosting limitations</li>
+						<li class="fragment">Authentication failure</li>
+					</ul>
+				</section>
+
+				<section>
+					<h2>The Hard Way</h2>
+				</section>
+
+				<section>
+					<p>Local development environment</p>
+
+					<ul>
+						<li>Local *AMP-stack</li>
+						<li>WordPress</li>
+					</ul>
+				</section>
+
+				<section>
+					<p><a href="http://php.net/manual/en/ref.filesystem.php">Filesystem functions</a>: <code>fopen()</code>, <code>fread()</code>, <code>fclose()</code></p>
+
+					<pre><code>$filename = '/path/to/your/backup/file.txt';
+$handle = fopen( $filename, 'r' );
+$contents = fread( $handle, filesize( $filename ) );
+fclose( $handle );
+</code></pre>
+				</section>
+
+				<section>
+					<p><a href="http://php.net/manual/en/ref.mysql.php">MySQL functions</a>: <code>mysql_connect()</code>, <code>mysql_select_db()</code>, <code>mysql_query()</code>, <code>mysql_close()</code></p>
+
+					<pre><code>$connection = mysql_connect( 'localhost', 'username', 'password' );
+$db = mysql_select_db( 'backup_database' );
+// Run some queries here
+mysql_close( $connection );
+</code></pre>
+				</section>
+
+				<section>
+					<p><a href="http://us3.php.net/manual/en/ref.strings.php">String functions</a>: <code>trim()</code>, <code>explode()</code>, <code>implode</code></p>
+
+					<pre><code>// Get rid of whitespace on ends
+$s = trim( '  apple, banana, orange, pear  ' );
+// $s is now 'apple, banana, orange, pear'
+
+// Turn a string into an array by exploding on a character string
+$tags = explode( ', ', $s );
+// $tags is now array( 'apple', 'banana', 'orange', 'pear' );
+
+// Turn an array into a string by imploding with a character string
+$commas = implode( ', ', $tags );
+// $commas is now 'apple, banana, orange, pear'
+</code></pre>
+				</section>
+
+				<section>
+					<p><a href="http://us3.php.net/manual/en/ref.datetime.php">Date/time functions</a>: <code>date()</code>, <code>time()</code>, and <code>gmdate()</code></p>
+
+					<pre><code>$date = date( 'Y-m-d H:i:s', $unixtime );
+
+// The joys of timezones
+$offset = get_option( 'gmt_offset' ) * 3600;
+$time = $unixtime + $offset;
+$date = date( 'Y-m-d H:i:s', $time );
+</code></pre>
+				</section>
+
+				<section>
+					<p><a href="http://regex101.com">Regular expressions</a> and <a href="http://php.net/manual/en/ref.pcre.php">regex functions</a>: <code>preg_match_all()</code></p>
+				</section>
+
+				<section>
+					<p><a href="http://codex.wordpress.org/Function_Reference/wp_insert_post"><code>wp_insert_post()</code></a></p>
+
+					<pre><code>$post = array(
+	'ID'             => [ &lt;post id> ] // Are you updating an existing post?
+	'post_content'   => [ &lt;string> ] // The full text of the post.
+	'post_name'      => [ &lt;string> ] // The name (slug) for your post
+	'post_title'     => [ &lt;string> ] // The title of your post.
+	'post_status'    => [ 'draft' | 'publish' | 'pending'| 'future' | 'private' | custom registered status ] // Default 'draft'.
+	'post_type'      => [ 'post' | 'page' | 'link' | 'nav_menu_item' | custom post type ] // Default 'post'.
+	'post_author'    => [ &lt;user ID> ] // The user ID number of the author. Default is the current user ID.
+	'ping_status'    => [ 'closed' | 'open' ] // Pingbacks or trackbacks allowed. Default is the option 'default_ping_status'.
+	'post_parent'    => [ &lt;post ID> ] // Sets the parent of the new post, if any. Default 0.
+	'menu_order'     => [ &lt;order> ] // If new post is a page, sets the order in which it should appear in supported menus. Default 0.
+	'to_ping'        => // Space or carriage return-separated list of URLs to ping. Default empty string.
+	'pinged'	 => // Space or carriage return-separated list of URLs that have been pinged. Default empty string.
+	'post_password'  => [ &lt;string> ] // Password for post, if any. Default empty string.
+	'guid'           => // Skip this and let Wordpress handle it, usually.
+	'post_content_filtered' => // Skip this and let Wordpress handle it, usually.
+	'post_excerpt'   => [ &lt;string> ] // For all your post excerpt needs.
+	'post_date'      => [ Y-m-d H:i:s ] // The time post was made.
+	'post_date_gmt'  => [ Y-m-d H:i:s ] // The time post was made, in GMT.
+	'comment_status' => [ 'closed' | 'open' ] // Default is the option 'default_comment_status', or 'closed'.
+	'post_category'  => [ array(&lt;category id>, ...) ] // Default empty.
+	'tags_input'     => [ '&lt;tag>, &lt;tag>, ...' | array ] // Default empty.
+	'tax_input'      => [ array( &lt;taxonomy> => &lt;array | string> ) ] // For custom taxonomies. Default empty.
+	'page_template'  => [ &lt;string> ] // Requires name of template file, eg template.php. Default empty.
+);
+</code></pre>
+				</section>
+
+				<section>
+					<h2>One-offs</h2>
+				</section>
+
+				<section>
+					<p>D-I-Y for file(s)</p>
+
+					<ol>
+						<li>Open and read the file(s)</li>
+						<li>Process the file contents</li>
+						<li>Insert the new post into WordPress</li>
+					</ol>
+				</section>
+
+				<section>
+					<p>Open and read your backup file
+
+					<pre><code>$filename = '/Users/jmdodd/Dropbox/delicious.html';
+$handle = fopen( $filename, 'r' );
+
+// Include WordPress for access to the database
+require( './wp-load.php' );
+
+$contents = fread( $handle, filesize( $filename ) );
+$contents = str_replace( PHP_EOL, '', $contents );
+</code></pre>
+				</section>
+
+				<section>
+					<p>Use regex to separate out each link's details</p>
+
+					<pre><code>$regex = '/&lt;dt>&lt;;a href="(.*?)" add_date="(.*?)" private="(.*?)" tags="(.*?)">(.*?)&lt;\/a>&lt;\/dt>(&lt;dd(.*?)>(.*?)&lt;\/dd>)?/im";
+preg_match_all( $regex, $contents, $matches );
+$raw = $matches[0];
+</code></pre>
+				</section>
+
+				<section>
+					<pre><code>// $matches[0][3] = &lt;dt>&lt;a href="http://www.raywenderlich.com/" add_date="1406836564" private="0" tags="ios,tutorial,iphone">Ray Wenderlich&lt;/a>&lt;/dt>&lt;dd>Tutorials for iPhone / iOS developers and gamers&lt;/dd>
+// $matches[1][3] = http://www.raywenderlich.com/
+// $matches[2][3] = 1406836564 (unixtime)
+// $matches[3][3] = 0 (not private)
+// $matches[4][3] = ios,tutorial,iphone
+// $matches[5][3] = Ray Wenderlich
+// $matches[8][3] = Tutorials for iPhone / iOS developers and gamers
+</code></pre>
+				</section>
+
+				<section>
+					<p>Clean up the data for WordPress</p>
+
+					<pre><code>// Convert unixtime to date
+$offset = get_option( 'gmt_offset' ) * 3600;
+$time = $matches[2][ $i ] + $offset;
+$date = date( 'Y-m-d H:i:s', $time );
+</code></pre>
+				</section>
+
+				<section>
+					<p>Check post status (set draft as default)</p>
+
+					<pre><code>// Convert private to 'publish' or 'draft'
+if ( 0 == $matches[3][ $i ] ) {
+	$status = 'publish';
+} else {
+	$status = 'draft';
+}
+</code></pre>
+				</section>
+
+				<section>
+					<p>Deal with taxonomy terms now</p>
+
+					<pre><code>// Convert taxonomy tags
+$tags = array_map( 'trim', explode( ',', $matches[4][ $i ] ) );
+</code></pre>
+				</section>
+
+				<section>
+					<p>Map your matched text to your new post</p>
+
+					<pre><code>$post = array(
+	'post_content'  => $content,
+	'post_title'    => $matches[5][ $i ],
+	'post_date_gmt' => $date,
+	'post_status'   => $status,
+	'tags_input'    => $tags,
+);
+</code></pre>
+				</section>
+
+				<section>
+					<p>Actually add the post to your WordPress install</p>
+
+					<pre><code>$id = wp_insert_post( $post, true );
+if ( ! is_a( $id, 'WP_Error' ) ) {
+	update_post_meta( $id, '_delicious_link_url', $matches[1][ $i ] );
+	update_post_meta( $id, '_delicious_link_description', $matches[8][ $i ] );
+
+	echo "Added post id $id for '{$matches[5][ $i ]}': {$matches[1][ $i ]}\n";
+} else {
+	print_r( $id );
+}
+</code></pre>
+				</section>
+
+				<section>
+					<h2>Demo</h2>
+				</section>
+
+				<section>
+					<p>D-I-Y for databases</p>
+
+					<ol>
+						<li>Make a local backup of your database</li>
+						<li>Create a WordPress installation in the same database as your local backup</li>
+						<li>Decide on mapping schema: custom post types and taxonomies, meta data, media, etc.</li>
+						<li>Process database in chunks to avoid timeout errors</li>
+					</ol>
+				</section>
+
+				<section>
+					<pre><code>$connection = mysql_connect( 'db_server', 'db_user', 'db_password' );
+$db = mysql_select_db( 'db_name' );
+
+// Note the LIMIT
+$rows = mysql_query( "SELECT * FROM mt_entry WHERE entry_blog_id = 1 ORDER BY entry_id LIMIT 0, 500" );
+while ( $row = mysql_fetch_assoc( $rows ) ) {
+	// Process data and use wp_insert_post() to add it to the database
+}
+
+mysql_close( $connection );
+</code></pre>
+				</section>
+
+				<section>
+					<p>An exercise for the brave...</p>
+				</section>
+
+				<section>
+					<p>D-I-Y for external sources (RSS/API)</p>
+
+					<ol>
+						<li>Authenticate if needed</li>
+						<li>Use API to pull data from the service (examples: Flickr, Twitter)</li>
+						<li>Process chunks (intervals) of content</li>
+						<li>Be mindful of API constraints (requests per second)</li>
+					</ol>
+				</section>
+
+				<section>
+					<h2>Back to the Future</h2>
+				</section>
+
+				<section>
+					<p>How to distribute/aggregate your content?</p>
+
+					<ul>
+						<li>Push from WordPress to an external service</li>
+						<li>Pull from RSS, API, JSON, whatever...</li>
+					</ul>
+				</section>
+
+				<section>
+					<p>Push content out via</p>
+
+					<ul>
+						<li>WordPress: add_action(), add_filter()</li>
+						<li>Plugins: <a href="http://jetpack.me/support/publicize/">Publicize</a></li>
+						<li>Authentication is a concern</li>
+					</ul>
+				</section>
+
+				<section>
+					<pre><code>function push_to_service( $post_id, $post, $update ) {
+	if ( ! $update ) {
+		// Do service push here
+	}
+}
+
+add_action( 'wp_insert_post', 'push_to_service', 10, 3 );
+					</pre></code>
+				</section>
+
+				<section>
+					<p>Pull content in via</p>
+
+					<ul>
+						<li>Plugins: <a href="http://wordpress.org/plugins/feedwordpress/">FeedWordPress</a></li>
+						<li>RSS</li>
+						<li>API</li>
+					</ul>
+				</section>
+
+				<section>
+					<p>Use <a href="http://codex.wordpress.org/Function_Reference/wp_cron"><code>wp_cron</code></a> to handle periodic requests</p>
+				</section>
+
+				<section>
+					<p>Beware infinite loops!</p>
+
+					<p>WordPress &rarr; Twitter &rarr; WordPress &rarr; &#8734;</p>
+				</section>
+
+				<section>
+					<p>What can I do to help?</p>
+
+					<ul>
+						<li class="fragment">Support Open Source software</li>
+						<li class="fragment">Support plugin and tool authors</li>
+						<li class="fragment">Support services with an API</li>
+					</ul>
+				</section>
+
+				<section>
+					<h2>Questions?</h2>
+
+					<p>Slides: <a href="http://jmdodd.github.io/talks/2014/ABQ/">http://jmdodd.github.io/talks/2014/ABQ/</a><br />
+
+					<p><a href="http://automattic.com/work-with-us/">(We're hiring!)</a></p>
+				</section>
+			</div>
+
+		</div>
+
+		<script src="/talks/reveal.js/lib/js/head.min.js"></script>
+		<script src="/talks/reveal.js/js/reveal.min.js"></script>
+
+		<script>
+
+			// Full list of configuration options available here:
+			// https://github.com/hakimel/reveal.js#configuration
+			Reveal.initialize({
+				controls: true,
+				progress: true,
+				history: true,
+				center: true,
+
+				theme: Reveal.getQueryHash().theme, // available themes are in /css/theme
+				transition: Reveal.getQueryHash().transition || 'none', // default/cube/page/concave/zoom/linear/fade/none
+
+				// Optional libraries used to extend on reveal.js
+				dependencies: [
+					{ src: '/talks/reveal.js/lib/js/classList.js', condition: function() { return !document.body.classList; } },
+					{ src: '/talks/reveal.js/plugin/markdown/marked.js', condition: function() { return !!document.querySelector( '[data-markdown]' ); } },
+					{ src: '/talks/reveal.js/plugin/markdown/markdown.js', condition: function() { return !!document.querySelector( '[data-markdown]' ); } },
+					{ src: '/talks/reveal.js/plugin/highlight/highlight.js', async: true, callback: function() { hljs.initHighlightingOnLoad(); } },
+					{ src: '/talks/reveal.js/plugin/zoom-js/zoom.js', async: true, condition: function() { return !!document.body.classList; } },
+					{ src: '/talks/reveal.js/plugin/notes/notes.js', async: true, condition: function() { return !!document.body.classList; } }
+				]
+			});
+
+		</script>
+
+	</body>
+</html>
