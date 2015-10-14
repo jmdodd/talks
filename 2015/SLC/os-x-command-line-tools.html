@@ -1,0 +1,594 @@
+<!doctype html>
+<html lang="en">
+
+	<head>
+		<meta charset="utf-8">
+
+		<title>OS X Command Line Tools</title>
+
+		<meta name="description" content="">
+		<meta name="author" content="Jennifer M. Dodd">
+
+		<meta name="apple-mobile-web-app-capable" content="yes" />
+		<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+
+		<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, minimal-ui">
+
+		<link rel="stylesheet" href="/talks/reveal.js/css/reveal.css">
+		<link rel="stylesheet" href="/talks/reveal.js/css/theme/simple.css" id="theme">
+
+		<!-- Code syntax highlighting -->
+		<link rel="stylesheet" href="/talks/reveal.js/lib/css/github.css">
+
+		<!-- Local style overrides -->
+		<style type="text/css">
+			.reveal table {
+				width: 80%;
+			}
+		</style>
+
+		<!-- Printing and PDF exports -->
+		<script>
+			var link = document.createElement( 'link' );
+			link.rel = 'stylesheet';
+			link.type = 'text/css';
+			link.href = window.location.search.match( /print-pdf/gi ) ? 'css/print/pdf.css' : 'css/print/paper.css';
+			document.getElementsByTagName( 'head' )[0].appendChild( link );
+		</script>
+
+		<!--[if lt IE 9]>
+		<script src="/talks/reveal.js/lib/js/html5shiv.js"></script>
+		<![endif]-->
+	</head>
+
+	<body>
+
+		<div class="reveal">
+
+			<!-- Any section element inside of this container is displayed as a slide -->
+			<div class="slides">
+				<section>
+				<h2>OS X Command Line Tools</h2>
+				</section>
+
+				<section>
+				<p><img src="i/unix.jpg"></p>
+
+				<aside class="notes">
+				<p>OS X is built on Darwin, an operating system that has its origins in Mach and FreeBSD. It is a full-fledged UNIX system.</p>
+
+				<p>Yes, this is old school.</p>
+
+				<p>Typing is faster than a GUI.</p>
+
+				<p>The Internet is not always available when you want to get work done.</p>
+				</aside>
+				</section>
+
+				<section>
+				<p>Finding commands</p>
+
+				<ul>
+					<li><strong>man:</strong> Display manual page
+						<ul>
+							<li><code>man &lt;command&gt;</code><br></li>
+							<li><code>man -k &lt;keyword&gt;</code><br> Search for a keyword in short descriptions of system commands.</li>
+						</ul>
+					</li>
+				</ul>
+				</section>
+
+				<section>
+				<p>Figuring out command syntax</p>
+
+				<pre><code data-trim>
+jmdodd@milano.local:~$ man whois
+				</code></pre>
+
+				<pre class="fragment"><code data-trim>
+WHOIS(1)                  BSD General Commands Manual                 WHOIS(1)
+
+NAME
+     whois -- Internet domain name and network number directory service
+
+SYNOPSIS
+     whois [-aAbdgiIlmQrR6] [-c country-code | -h host] [-p port] name ...
+
+DESCRIPTION
+     The whois utility looks up records in the databases maintained by several
+     Network Information Centers (NICs).
+
+     The options are as follows:
+
+     -6      Use the IPv6 Resource Center (6bone) database.  It contains net-
+             work names and addresses for the IPv6 network.
+
+     -A      Use the Asia/Pacific Network Information Center (APNIC) database.
+             It contains network numbers used in East Asia, Australia, New
+             Zealand, and the Pacific islands.
+
+     -a      Use the American Registry for Internet Numbers (ARIN) database.
+				</code></pre>
+
+				<aside class="notes">
+				<p>&lt;command&gt; [optional flags]</p>
+				</aside>
+				</section>
+
+				<section>
+				<h3>Disk Utilities</h3>
+				</section>
+
+				<section>
+				<ul>
+					<li><strong>du:</strong> Display disk usage statistics
+						<ul>
+							<li><code>du -d 1</code><br>Depth of one directory in current directory.</li>
+							<li><code>du -s *</code><br>Side of files and directories in current directory</li>
+						</ul>
+					</li>
+				</ul>
+				</section>
+
+				<section>
+				<ul>
+					<li><strong>df:</strong> Display free disk space
+						<ul>
+							<li><code>df</code><br></li>
+						</ul>
+					</li>
+				</ul>
+
+				<aside class="notes">
+				<p>Eventually, you're going to do something interesting involving a log file or a download process or something creative that will eat your disk space.</p>
+				</aside>
+				</section>
+
+				<section>
+				<h3>File Utilities</h3>
+				</section>
+
+				<section>
+				<ul>
+					<li><strong>pwd:</strong> Print working directory</li>
+				</ul>
+				</section>
+
+				<section>
+				<ul>
+					<li><strong>cd:</strong> Change directory
+						<ul>
+							<li><code>cd ~</code><br> Change to your home directory.</li>
+							<li><code>cd ~/Downloads</code><br> Change to your Downloads directory.</li>
+						</ul>
+					</li>
+				</ul>
+				</section>
+
+				<section>
+				<ul>
+					<li><strong>ls:</strong> List your files
+						<ul>
+							<li><code>ls -la</code><br> List all the details of all the files in the pwd, including dotfiles.</li>
+							<li><code>ls -1</code><br> List all the files in the pwd in one column.</li>
+						</ul>
+					</li>
+				</ul>
+				</section>
+
+				<section>
+				<ul>
+					<li><strong>cat:</strong> Concatenate a file to your screen
+						<ul>
+							<li><code>cat &lt;file&gt;</code><br></li>
+						</ul>
+					</li>
+				</ul>
+				</section>
+
+				<section>
+				<ul>
+					<li><strong>head:</strong> Output the first part of a file
+						<ul>
+							<li><code>head &lt;file&gt;</code><br></li>
+						</ul>
+					</li>
+				</ul>
+				</section>
+
+				<section>
+				<ul>
+					<li><strong>tail:</strong> Output the last part of a file
+						<ul>
+							<li><code>tail -&lt;number&gt; &lt;file&gt;</code><br> Output the last &lt;number&gt; lines of a file.</li>
+							<li><code>tail -f &lt;file&gt;</code><br> Follow the file as it grows.</li>
+						</ul>
+					</li>
+				</ul>
+				</section>
+
+				<section>
+				<ul>
+					<li><strong>less:</strong> Scroll backward and forward through a file
+						<ul>
+							<li><code>less &lt;file&gt;</code></li>
+						</ul>
+					</li>
+				</ul>
+				</section>
+
+				<section>
+				<ul>
+					<li><strong>wc:</strong> Word count
+						<ul>
+							<li><code>wc -l &lt;file&gt;</code><br> Count newlines.</li>
+							<li><code>wc -L &lt;file&gt;</code><br> Print length of longest line.</li>
+							<li><code>wc -w &lt;file&gt;</code><br> Print the word count.</li>
+							<li><code>wc -m &lt;file&gt;</code><br> Print the character count.</li>
+						</ul>
+					</li>
+				</ul>
+				</section>
+
+				<section>
+				<ul>
+					<li><strong>grep:</strong> Look for a string in file(s)
+						<ul>
+							<li><code>grep -i &lt;pattern&gt; &lt;file(s) or pattern&gt;</code><br> Case-insensitive search.</li>
+							<li><code>grep -v &lt;pattern&gt; &lt;file(s) or pattern&gt;</code><br> Find lines that do not match &lt;pattern&gt;.</li>
+							<li><code>grep -R &lt;pattern&gt; &lt;file(s) or pattern&gt;</code><br> Recursively search subdirectories.</li>
+						</ul>
+					</li>
+				</ul>
+				</section>
+
+				<section>
+				<ul>
+					<li><strong>find:</strong> Find types of files
+						<ul>
+							<li><code>find -type d</code><br> Find directories.</li>
+							<li><code>find -type f</code><br> Find regular files.</li>
+							<li><code>find -type l</code><br> Find symbolic links.</li>
+						</ul>
+					</li>
+				</ul>
+				</section>
+
+				<section>
+				<ul>
+					<li><strong>locate:</strong> Find a file by name
+						<ul>
+							<li><code>locate &lt;pattern&gt;</code><br> Find pathnames that match the given pattern.
+						</ul>
+					</li>
+				</ul>
+				</section>
+
+				<section>
+				<ul>
+					<li><strong>which:</strong> Find the source path of a command
+						<ul>
+							<li><code>which &lt;command&gt;</code><br></li>
+						</ul>
+					</li>
+				</ul>
+				</section>
+
+				<section>
+				<h3>Text Utilities</h3>
+				</section>
+
+				<section>
+				<ul>
+					<li><strong>diff:</strong> Find the differences between two files
+						<ul>
+							<li><code>diff &lt;file1&gt; &lt;file2&gt;</code><br></li>
+						</ul>
+					</li>
+				</ul>
+				</section>
+
+				<section>
+				<ul>
+					<li><strong>vimdiff:</strong> Display the differences between two files using vim to highlight findings
+						<ul>
+							<li><code>vimdiff &lt;file1&gt; &lt;file2&gt;</code><br></li>
+						</ul>
+					</li>
+				</ul>
+				</section>
+
+				<section>
+				<ul>
+					<li><strong>sort:</strong> Sort lines
+						<ul>
+							<li><code>sort &lt;file&gt;</code><br> Sort the lines in a file.</li>
+							<li><code>sort -f &lt;file&gt;</code><br> Ignore case.</li>
+							<li><code>sort -n &lt;file&gt;</code><br> Sort numerically.</li>
+						</ul>
+					</li>
+				</ul>
+				</section>
+
+				<section>
+				<ul>
+					<li><strong>uniq:</strong> Find unique lines in a file
+						<ul>
+							<li><code>uniq &lt;file&gt;</code><br></li>
+						</ul>
+					</li>
+				</ul>
+				</section>
+
+				<section>
+				<ul>
+					<li><strong>xmllint:</strong> Check a file for valid XML
+						<ul>
+							<li><code>xmllint &lt;file&gt;</code><br></li>
+						</ul>
+					</li>
+				</ul>
+				</section>
+
+				<section>
+				<h3>Connectivity and Network</h3>
+				</section>
+
+				<section>
+				<ul>
+					<li><strong>ping:</strong> Ping a network host
+						<ul>
+							<li><code>ping wordpress.com</code></li>
+						</ul>
+					</li>
+				</ul>
+				</section>
+
+				<section>
+				<ul>
+					<li><strong>traceroute:</strong> Print the route to a network host
+						<ul>
+							<li><code>traceroute ns1.wordpress.com</code></li>
+						</ul>
+					</li>
+				</ul>
+				</section>
+
+				<section>
+				<ul>
+					<li><strong>whois:</strong> Internet domain name directory service
+						<ul>
+							<li><code>whois wordpress.org</code></li>
+							<li><code>whois wordpress.com</code></li>
+							<li><code>whois "domain wordpress.com"</code></li>
+							<li><code>whois -h whois.markmonitor.com wordpress.com</code></li>
+						</ul>
+					</li>
+				</ul>
+				</section>
+
+				<section>
+				<ul>
+					<li><strong>dig:</strong> DNS record lookup utility
+						<ul>
+							<li><code>dig @ns1.wordpress.com wordpress.com ANY</code></li>
+							<li><code>dig @ns1.wordpress.com wordpress.com MX</code></li>
+						</ul>
+					</li>
+				</ul>
+				</section>
+
+				<section>
+				<ul>
+					<li><strong>host:</strong> IP lookup utility
+						<ul>
+							<li><code>host 198.181.116.9</code></li>
+							<li><code>host wordpress.com</code></li>
+						</ul>
+					</li>
+				</ul>
+				</section>
+
+				<section>
+				<ul>
+					<li><strong>curl:</strong> Transfer a URL
+						<ul>
+							<li><code>curl -v https://wordpress.com/</code></li>
+							<li><code>curl -I https://wordpress.com/</code></li>
+							<li><code>curl -O https://wordpress.org/latest.zip</code></li>
+						</ul>
+					</li>
+				</ul>
+				</section>
+
+				<section>
+				<h3>Processes</h3>
+				</section>
+
+				<section>
+				<ul>
+					<li><strong>ps:</strong> List processes
+						<ul>
+							<li><code>ps -auxwww</code><br> List complete information about all processes, including those running in the background</li>
+						</ul>
+					</li>
+				</ul>
+				</section>
+
+				<section>
+				<ul>
+					<li><strong>kill:</strong> Kill a given process
+						<ul>
+							<li><code>kill -9 &lt;pid&gt;</code><br>Non-catchable, non-ignorable kill signal.</li>
+							<li><code>kill -HUP &lt;pid&gt;</code><br>Hang-up signal.</li>
+						</ul>
+					</li>
+				</ul>
+				</section>
+
+				<section>
+				<ul>
+					<li><strong>&amp;:</strong> Background a process
+						<ul>
+							<li><code>curl -s -O URL_OF_HUGE_FILE &amp;</code><br>Background the download of a large file.</li>
+						</ul>
+					</li>
+				</ul>
+				</section>
+
+				<section>
+				<h3>Pipes and Redirection</h3>
+				</section>
+
+				<section>
+				<ul>
+					<li><strong>;:</strong> Run multiple commands in sequence, separating them with <code>;</code>
+						<ul>
+							<li><code>mkdir tmp; touch tmp/lockfile;</code><br>Create a directory and a lockfile in that dir.</li>
+						</ul>
+					</li>
+				</ul>
+				</section>
+
+				<section>
+				<ul>
+					<li><strong>|:</strong> Pipe the output from one command to another command
+						<ul>
+							<li><code>ls -1 | grep -v jpg</code><br>Find all the files not containing 'jpg' in the pwd.</li>
+							<li><code>tail -f php_error.log | grep 10.0.1.1</code><br>Display lines that match 10.0.1.1.</li>
+						</ul>
+					</li>
+				</ul>
+				</section>
+
+				<section>
+				<ul>
+					<li><strong>&gt;:</strong> Overwrite file contents
+						<ul>
+							<li><code>ls -1 &gt; files.txt</code><br>Save a list of pwd files in files.txt.</li>
+						</ul>
+					</li>
+				</ul>
+				</section>
+
+				<section>
+				<ul>
+					<li><strong>&gt;&gt;:</strong> Append file contents
+						<ul>
+							<li><code>ls -1 &gt;&gt; files.txt</code><br>Append the list of pwd files to files.txt.</li>
+						</ul>
+					</li>
+				</ul>
+				</section>
+
+				<section>
+				<p>Exercises</p>
+
+				<ul>
+					<li>Find a command sequence that will download the WordPress.org zip package and unzip it in ~/tmp/.</li>
+				</ul>
+
+				<pre class="fragment"><code class="language-shell" data-trim>
+mkdir tmp;
+cd tmp;
+curl -O https://wordpress.org/latest.zip
+unzip latest.zip
+				</code></pre>
+
+				<ul>
+					<li>Find the six largest files in your Downloads directory, sorted by largest file first.</li>
+				</ul>
+
+				<pre class="fragment"><code class="language-shell" data-trim>
+du -s ~/Downloads/* | sort -nr | head -7 | tail -6
+				</code></pre>
+				</section>
+
+				<section>
+				<h3>WP-CLI</h3>
+				</section>
+
+				<section>
+				<pre><code data-trim>
+curl -O https://raw.githubusercontent.com/wp-cli/builds/gh-pages/phar/wp-cli.phar
+php wp-cli.phar --info
+chmod +x wp-cli.phar
+sudo mv wp-cli.phar /usr/local/bin/wp
+wp --info
+				</code></pre>
+				</section>
+
+				<section>
+				<p>Using MAMP? In <code>~/.bash_profile</code>:</p>
+
+				<pre><code data-trim>
+# Use MAMP version of PHP
+PHP_VERSION=`ls /Applications/MAMP/bin/php/ | sort -n | tail -1`
+export PATH=/Applications/MAMP/bin/php/${PHP_VERSION}/bin:$PATH
+
+# Export MAMP MySQL executables as functions
+# Makes them usable from within shell scripts (unlike an alias)
+mysql() {
+    /Applications/MAMP/Library/bin/mysql "$@"
+}
+mysqladmin() {
+    /Applications/MAMP/Library/bin/mysqladmin "$@"
+}
+export -f mysql
+export -f mysqladmin
+				</code></pre>
+
+				<p>Then run <code>source ~/.bash_profile</code></p>
+
+				<p><cite>Source: <a href="http://stackoverflow.com/a/29990624">How to override the path of PHP to use the MAMP path?</a></cite></p>
+				</section>
+
+				<section>
+				<h3>PHPUnit</h3>
+				</section>
+
+				<section>
+				<p>Install using a PHAR: https://phpunit.de/</p>
+
+				<pre><code data-trim>
+php -version
+curl -O https://phar.phpunit.de/phpunit.phar
+chmod +x phpunit.phar
+sudo mv phpunit.phar /usr/local/bin/phpunit
+phpunit --version
+				</code></pre>
+				</section>
+			</div>
+
+		</div>
+
+		<script src="/talks/reveal.js/lib/js/head.min.js"></script>
+		<script src="/talks/reveal.js/js/reveal.js"></script>
+
+		<script>
+
+			// Full list of configuration options available at:
+			// https://github.com/hakimel/reveal.js#configuration
+			Reveal.initialize({
+				controls: true,
+				progress: true,
+				history: true,
+				center: true,
+
+				transition: 'slide', // none/fade/slide/convex/concave/zoom
+
+				// Optional reveal.js plugins
+				dependencies: [
+					{ src: '/talks/reveal.js/lib/js/classList.js', condition: function() { return !document.body.classList; } },
+					{ src: '/talks/reveal.js/plugin/markdown/marked.js', condition: function() { return !!document.querySelector( '[data-markdown]' ); } },
+					{ src: '/talks/reveal.js/plugin/markdown/markdown.js', condition: function() { return !!document.querySelector( '[data-markdown]' ); } },
+					{ src: '/talks/reveal.js/plugin/highlight/highlight.js', async: true, condition: function() { return !!document.querySelector( 'pre code' ); }, callback: function() { hljs.initHighlightingOnLoad(); } },
+					{ src: '/talks/reveal.js/plugin/zoom-js/zoom.js', async: true },
+					{ src: '/talks/reveal.js/plugin/notes/notes.js', async: true }
+				]
+			});
+
+		</script>
+
+	</body>
+</html>

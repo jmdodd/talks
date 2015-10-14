@@ -1,0 +1,451 @@
+<!doctype html>
+<html lang="en">
+
+	<head>
+		<meta charset="utf-8">
+
+		<title>Debugging</title>
+
+		<meta name="description" content="">
+		<meta name="author" content="Jennifer M. Dodd">
+
+		<meta name="apple-mobile-web-app-capable" content="yes" />
+		<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+
+		<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, minimal-ui">
+
+		<link rel="stylesheet" href="/talks/reveal.js/css/reveal.css">
+		<link rel="stylesheet" href="/talks/reveal.js/css/theme/simple.css" id="theme">
+
+		<!-- Code syntax highlighting -->
+		<link rel="stylesheet" href="/talks/reveal.js/lib/css/github.css">
+
+		<!-- Local style overrides -->
+		<style type="text/css">
+			.reveal table {
+				width: 80%;
+			}
+		</style>
+
+		<!-- Printing and PDF exports -->
+		<script>
+			var link = document.createElement( 'link' );
+			link.rel = 'stylesheet';
+			link.type = 'text/css';
+			link.href = window.location.search.match( /print-pdf/gi ) ? 'css/print/pdf.css' : 'css/print/paper.css';
+			document.getElementsByTagName( 'head' )[0].appendChild( link );
+		</script>
+
+		<!--[if lt IE 9]>
+		<script src="/talks/reveal.js/lib/js/html5shiv.js"></script>
+		<![endif]-->
+	</head>
+
+	<body>
+
+		<div class="reveal">
+
+			<!-- Any section element inside of this container is displayed as a slide -->
+			<div class="slides">
+				<section>
+				<h2>Debugging</h2>
+				</section>
+
+				<section>
+				<p><img src="i/bughunt.jpg"></p>
+				</section>
+
+				<section>
+				<p><code>error_log()</code></p>
+
+				<ul>
+					<li>Log errors to the defined error handling routines</li>
+					<li>Does nothing unless it is run</li>
+				</ul>
+				</section>
+
+				<section>
+				<pre><code class="language-php" data-trim>
+error_log( $_SERVER['REQUEST_METHOD'] );
+				</code></pre>
+
+				<pre class="fragment"><code data-trim>
+[27-Sep-2015 20:55:40 UTC] GET
+[27-Sep-2015 20:55:45 UTC] POST
+				</code></pre>
+				</section>
+
+				<section>
+					<p>Direct insertion in core code</p>
+
+					<pre><code class="language-php" data-trim>
+function wp_publish_post( $post ) {
+	global $wpdb;
+	error_log( $post-&gt;post_status );
+
+	if ( ! $post = get_post( $post ) )
+		return;
+
+	if ( 'publish' == $post-&gt;post_status )
+		return;
+
+	$wpdb-&gt;update( $wpdb-&gt;posts, array( 'post_status' =&gt; 'publish' ), array( 'ID' =&gt; $post-&gt;ID ) );
+					</code></pre>
+				</section>
+
+				<section>
+					<p>Attach to a filter or action if possible</p>
+
+					<pre><code class="language-php" data-trim>
+function sandbox_edit_post( $post_id, $post ) {
+	error_log( $post->post_status );
+}
+
+add_action( 'edit_post', 'sandbox_edit_post', 10, 2 );
+					</code></pre>
+
+					<pre class="fragment"><code data-trim>
+[27-Sep-2015 21:15:24 UTC] publish
+					</code></pre>
+				</section>
+
+				<section>
+					<p>Add <code>{}</code> as needed</p>
+				</section>
+
+				<section>
+					<p>What does this actually do?</p>
+
+					<pre><code class="language-php" data-trim>
+function wp_trash_post( $post_id = 0 ) {
+	if ( !EMPTY_TRASH_DAYS )
+		error_log( "wp_trash_post:{$post_id}:empty_trash_days" );
+		return wp_delete_post($post_id, true);
+
+	if ( !$post = get_post($post_id, ARRAY_A) )
+		error_log( "wp_trash_post:{$post_id}:get_post" );
+		return $post;
+					</code></pre>
+				</section>
+
+				<section>
+					<p>Better with <code>{}</code></p>
+
+					<pre><code class="language-php" data-trim>
+function wp_trash_post( $post_id = 0 ) {
+	if ( !EMPTY_TRASH_DAYS ) {
+		error_log( "wp_trash_post:{$post_id}:empty_trash_days" );
+		return wp_delete_post($post_id, true);
+	}
+
+	if ( !$post = get_post($post_id, ARRAY_A) ) {
+		error_log( "wp_trash_post:{$post_id}:get_post" );
+		return $post;
+	}
+					</code></pre>
+				</section>
+
+				<section>
+					<h3><code>error_log( print_r() )</code></h3>
+				</section>
+
+				<section>
+					<pre><code class="language-php" data-trim>
+function sandbox_edit_post( $post_id, $post ) {
+	error_log( print_r( $post, true ) );
+}
+
+add_action( 'edit_post', 'sandbox_edit_post', 10, 2 );
+					</code></pre>
+
+					<pre class="fragment"><code data-trim>
+[27-Sep-2015 21:17:39 UTC] WP_Post Object
+(
+    [ID] =&gt; 1
+    [post_author] =&gt; 1
+    [post_date] =&gt; 2015-09-26 15:06:19
+    [post_date_gmt] =&gt; 2015-09-26 15:06:19
+    [post_content] =&gt; Edited post text.
+    [post_title] =&gt; Hello world!
+    [post_excerpt] =&gt; 
+    [post_status] =&gt; publish
+    [comment_status] =&gt; open
+    [ping_status] =&gt; open
+    [post_password] =&gt; 
+    [post_name] =&gt; hello-world
+    [to_ping] =&gt; 
+    [pinged] =&gt; 
+    [post_modified] =&gt; 2015-09-27 21:17:39
+    [post_modified_gmt] =&gt; 2015-09-27 21:17:39
+    [post_content_filtered] =&gt; 
+    [post_parent] =&gt; 0
+    [guid] =&gt; http://sandbox.dev/?p=1
+    [menu_order] =&gt; 0
+    [post_type] =&gt; post
+    [post_mime_type] =&gt; 
+    [comment_count] =&gt; 1
+    [filter] =&gt; raw
+)
+					</code></pre>
+				</section>
+
+				<section>
+					<p>Why use <code>print_r( $var, true )</code>?</p>
+
+					<pre class="fragment"><code data-trim>
+[27-Sep-2015 21:33:33 UTC] PHP Warning:  Cannot modify header information - headers already sent by (output started at /Users/jmdodd/Dropbox/MAMP/htdocs/wp-content/plugins/development-sandbox.php:18) in /Users/jmdodd/Dropbox/MAMP/sandbox.dev/wp-admin/post.php on line 242
+[27-Sep-2015 21:33:33 UTC] PHP Stack trace:
+[27-Sep-2015 21:33:33 UTC] PHP   1. {main}() /Users/jmdodd/Dropbox/MAMP/sandbox.dev/wp-admin/post.php:0
+[27-Sep-2015 21:33:33 UTC] PHP   2. setcookie() /Users/jmdodd/Dropbox/MAMP/sandbox.dev/wp-admin/post.php:242
+[27-Sep-2015 21:33:33 UTC] PHP Warning:  Cannot modify header information - headers already sent by (output started at /Users/jmdodd/Dropbox/MAMP/htdocs/wp-content/plugins/development-sandbox.php:18) in /Users/jmdodd/Dropbox/MAMP/sandbox.dev/wp-includes/pluggable.php on line 1207
+[27-Sep-2015 21:33:33 UTC] PHP Stack trace:
+[27-Sep-2015 21:33:33 UTC] PHP   1. {main}() /Users/jmdodd/Dropbox/MAMP/sandbox.dev/wp-admin/post.php:0
+[27-Sep-2015 21:33:33 UTC] PHP   2. redirect_post() /Users/jmdodd/Dropbox/MAMP/sandbox.dev/wp-admin/post.php:245
+[27-Sep-2015 21:33:33 UTC] PHP   3. wp_redirect() /Users/jmdodd/Dropbox/MAMP/sandbox.dev/wp-admin/post.php:86
+[27-Sep-2015 21:33:33 UTC] PHP   4. header() /Users/jmdodd/Dropbox/MAMP/sandbox.dev/wp-includes/pluggable.php:1207
+					</code></pre>
+
+					<aside class="notes">
+						<p>Avoid premature end of script header</p>
+					</aside>
+				</section>
+
+				<section>
+					<p><code>var_dump(); die()</code></p>
+				</section>
+
+				<section>
+					<pre><code class="language-php" data-trim>
+function sandbox_edit_post( $post_id, $post ) {
+	var_dump( $post );
+	die();
+}
+
+add_action( 'edit_post', 'sandbox_edit_post', 10, 2 );
+					</code></pre>
+
+<pre class='fragment xdebug-var-dump' dir='ltr'>
+<b>object</b>(<i>WP_Post</i>)[<i>286</i>]
+  <i>public</i> 'ID' <font color='#888a85'>=&gt;</font> <small>int</small> <font color='#4e9a06'>1</font>
+  <i>public</i> 'post_author' <font color='#888a85'>=&gt;</font> <small>string</small> <font color='#cc0000'>'1'</font> <i>(length=1)</i>
+  <i>public</i> 'post_date' <font color='#888a85'>=&gt;</font> <small>string</small> <font color='#cc0000'>'2015-09-26 15:06:19'</font> <i>(length=19)</i>
+  <i>public</i> 'post_date_gmt' <font color='#888a85'>=&gt;</font> <small>string</small> <font color='#cc0000'>'2015-09-26 15:06:19'</font> <i>(length=19)</i>
+  <i>public</i> 'post_content' <font color='#888a85'>=&gt;</font> <small>string</small> <font color='#cc0000'>'Edited post text.'</font> <i>(length=17)</i>
+  <i>public</i> 'post_title' <font color='#888a85'>=&gt;</font> <small>string</small> <font color='#cc0000'>'Hello world!'</font> <i>(length=12)</i>
+  <i>public</i> 'post_excerpt' <font color='#888a85'>=&gt;</font> <small>string</small> <font color='#cc0000'>''</font> <i>(length=0)</i>
+  <i>public</i> 'post_status' <font color='#888a85'>=&gt;</font> <small>string</small> <font color='#cc0000'>'publish'</font> <i>(length=7)</i>
+  <i>public</i> 'comment_status' <font color='#888a85'>=&gt;</font> <small>string</small> <font color='#cc0000'>'open'</font> <i>(length=4)</i>
+  <i>public</i> 'ping_status' <font color='#888a85'>=&gt;</font> <small>string</small> <font color='#cc0000'>'open'</font> <i>(length=4)</i>
+  <i>public</i> 'post_password' <font color='#888a85'>=&gt;</font> <small>string</small> <font color='#cc0000'>''</font> <i>(length=0)</i>
+  <i>public</i> 'post_name' <font color='#888a85'>=&gt;</font> <small>string</small> <font color='#cc0000'>'hello-world'</font> <i>(length=11)</i>
+  <i>public</i> 'to_ping' <font color='#888a85'>=&gt;</font> <small>string</small> <font color='#cc0000'>''</font> <i>(length=0)</i>
+  <i>public</i> 'pinged' <font color='#888a85'>=&gt;</font> <small>string</small> <font color='#cc0000'>''</font> <i>(length=0)</i>
+  <i>public</i> 'post_modified' <font color='#888a85'>=&gt;</font> <small>string</small> <font color='#cc0000'>'2015-09-27 21:33:19'</font> <i>(length=19)</i>
+  <i>public</i> 'post_modified_gmt' <font color='#888a85'>=&gt;</font> <small>string</small> <font color='#cc0000'>'2015-09-27 21:33:19'</font> <i>(length=19)</i>
+  <i>public</i> 'post_content_filtered' <font color='#888a85'>=&gt;</font> <small>string</small> <font color='#cc0000'>''</font> <i>(length=0)</i>
+  <i>public</i> 'post_parent' <font color='#888a85'>=&gt;</font> <small>int</small> <font color='#4e9a06'>0</font>
+  <i>public</i> 'guid' <font color='#888a85'>=&gt;</font> <small>string</small> <font color='#cc0000'>'http://sandbox.dev/?p=1'</font> <i>(length=23)</i>
+  <i>public</i> 'menu_order' <font color='#888a85'>=&gt;</font> <small>int</small> <font color='#4e9a06'>0</font>
+  <i>public</i> 'post_type' <font color='#888a85'>=&gt;</font> <small>string</small> <font color='#cc0000'>'post'</font> <i>(length=4)</i>
+  <i>public</i> 'post_mime_type' <font color='#888a85'>=&gt;</font> <small>string</small> <font color='#cc0000'>''</font> <i>(length=0)</i>
+  <i>public</i> 'comment_count' <font color='#888a85'>=&gt;</font> <small>string</small> <font color='#cc0000'>'1'</font> <i>(length=1)</i>
+  <i>public</i> 'filter' <font color='#888a85'>=&gt;</font> <small>string</small> <font color='#cc0000'>'raw'</font> <i>(length=3)</i>
+</pre>
+				</section>
+
+				<section>
+					<h3><code>var_export()</code></h3>
+				</section>
+
+				<section>
+					<pre><code class="language-php" data-trim>
+function sandbox_edit_post( $post_id, $post ) {
+	error_log( var_export( $post, true ) );
+}
+
+add_action( 'edit_post', 'sandbox_edit_post', 10, 2 );
+					</code></pre>
+
+					<pre class="fragment"><code data-trim>
+[27-Sep-2015 21:54:03 UTC] WP_Post::__set_state(array(
+   'ID' => 1,
+   'post_author' => '1',
+   'post_date' => '2015-09-26 15:06:19',
+   'post_date_gmt' => '2015-09-26 15:06:19',
+   'post_content' => 'Edited post text.',
+   'post_title' => 'Hello world!',
+   'post_excerpt' => '',
+   'post_status' => 'publish',
+   'comment_status' => 'open',
+   'ping_status' => 'open',
+   'post_password' => '',
+   'post_name' => 'hello-world',
+   'to_ping' => '',
+   'pinged' => '',
+   'post_modified' => '2015-09-27 21:54:03',
+   'post_modified_gmt' => '2015-09-27 21:54:03',
+   'post_content_filtered' => '',
+   'post_parent' => 0,
+   'guid' => 'http://sandbox.dev/?p=1',
+   'menu_order' => 0,
+   'post_type' => 'post',
+   'post_mime_type' => '',
+   'comment_count' => '1',
+   'filter' => 'raw',
+))
+					</code></pre>
+				</section>
+
+				<section>
+					<p><code>debug_backtrace()</code></p>
+				</section>
+
+				<section>
+					<p><code>get_defined_vars()</code></p>
+				</section>
+
+				<section>
+					<p><code>get_defined_functions()</code></p>
+				</section>
+
+				<section>
+					<p><code>get_defined_constants()</code></p>
+				</section>
+
+				<section>
+					<h3>Use globals to trace through multiple operations</h3>
+				</section>
+
+				<section>
+					<p>Initialize the global</p>
+
+					<pre><code class="language-php" data-trim>
+function sandbox_codetrace_init() {
+	global $codetrace;
+	$codetrace = array();
+}
+add_action( 'init', 'sandbox_codetrace_init' );
+					</code></pre>
+				</section>
+
+				<section>
+					<p>Populate the global</p>
+
+					<pre><code class="language-php" data-trim>
+function sandbox_codetrace_wp_trash_post( $post_id ) {
+	global $codetrace;
+	$post = get_post( $post_id );
+	$codetrace[] = $post;
+}
+add_action( 'wp_trash_post', 'sandbox_codetrace_wp_trash_post' );
+					</code></pre>
+				</section>
+
+				<section>
+					<p>Examine the global</p>
+
+					<pre><code class="language-php" data-trim>
+function sandbox_codetrace_admin_footer( $print ) {
+	global $codetrace;
+	error_log( print_r( $codetrace, true ) );
+}
+add_action( 'admin_footer', 'sandbox_codetrace_admin_footer' );
+					</code></pre>
+				</section>
+
+				<section>
+					<h3>Die Trying</h3>
+				</section>
+
+				<section>
+				<pre><code class="language-php" data-trim>
+function set_post_type( $post_id = 0, $post_type = 'post' ) {
+	global $wpdb;
+
+	$post_type = sanitize_post_field('post_type', $post_type, $post_id, 'db');
+	error_log( print_r( array(
+		'set_post_type',
+		$post_id,
+		$post_type,
+	) );
+	die();
+	$return = $wpdb-&gt;update( $wpdb-&gt;posts, array('post_type' =&gt; $post_type), array('ID' =&gt; $post_id) );
+
+	clean_post_cache( $post_id );
+
+	return $return;
+}
+				</code></pre>
+				</section>
+
+				<section>
+					<p>Avoid changing the database</p>
+					<p class="fragment">Avoid external calls</p>
+				</section>
+
+				<section>
+					<h3>Divide and Conquer</h3>
+				</section>
+
+				<section>
+					<p class="fragment">Binary search algorithm</p>
+					<p class="fragment"><code>git bisect</code></p>
+				</section>
+
+				<section>
+					<h3>Limit via $_GET</h3>
+				</section>
+
+				<section>
+					<pre><code class="language-php" data-trim>
+function sandbox_limited_init() {
+	if ( isset( $_GET['sandbox'] ) &amp;&amp; 'kermit' == $_GET['sandbox'] ) {
+		// Do stuff here
+	}
+}
+add_action( 'init', 'sandbox_limited_init' );
+					</code></pre>
+				</section>
+
+				<section>
+					<p>Only runs when the URL is appended</p>
+
+					<p><code>http://sandbox.dev/?sandbox=kermit</code>
+				</section>
+
+				<section>
+					<h3><code>add_action( 'all' )</code></h3>
+				</section>
+			</div>
+		</div>
+
+		<script src="/talks/reveal.js/lib/js/head.min.js"></script>
+		<script src="/talks/reveal.js/js/reveal.js"></script>
+
+		<script>
+
+			// Full list of configuration options available at:
+			// https://github.com/hakimel/reveal.js#configuration
+			Reveal.initialize({
+				controls: true,
+				progress: true,
+				history: true,
+				center: true,
+
+				transition: 'slide', // none/fade/slide/convex/concave/zoom
+
+				// Optional reveal.js plugins
+				dependencies: [
+					{ src: '/talks/reveal.js/lib/js/classList.js', condition: function() { return !document.body.classList; } },
+					{ src: '/talks/reveal.js/plugin/markdown/marked.js', condition: function() { return !!document.querySelector( '[data-markdown]' ); } },
+					{ src: '/talks/reveal.js/plugin/markdown/markdown.js', condition: function() { return !!document.querySelector( '[data-markdown]' ); } },
+					{ src: '/talks/reveal.js/plugin/highlight/highlight.js', async: true, condition: function() { return !!document.querySelector( 'pre code' ); }, callback: function() { hljs.initHighlightingOnLoad(); } },
+					{ src: '/talks/reveal.js/plugin/zoom-js/zoom.js', async: true },
+					{ src: '/talks/reveal.js/plugin/notes/notes.js', async: true }
+				]
+			});
+
+		</script>
+
+	</body>
+</html>
