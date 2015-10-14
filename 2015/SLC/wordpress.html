@@ -401,7 +401,7 @@ function sandbox_javascript() {
 				url: '&lt;?php echo admin_url( 'admin-ajax.php' ); ?&gt;',
 				data: {
 					action: 'find_time',
-					_ajax_nonce: '&lt;php echo $nonce; ?&gt;'
+					_ajax_nonce: '&lt;?php echo $nonce; ?&gt;'
 				}
 			} ).done( function( response, textStatus, jqXHR ) {
 				$( '#timethanks' ).text( response.data.time );
