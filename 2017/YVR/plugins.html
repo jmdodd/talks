@@ -1,0 +1,544 @@
+<!doctype html>
+<html lang="en">
+
+	<head>
+		<meta charset="utf-8">
+
+		<title>Plugins</title>
+
+		<meta name="description" content="">
+		<meta name="author" content="Jennifer M. Dodd">
+
+		<meta name="apple-mobile-web-app-capable" content="yes" />
+		<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+
+		<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, minimal-ui">
+
+		<link rel="stylesheet" href="/talks/reveal.js/css/reveal.css">
+		<link rel="stylesheet" href="/talks/reveal.js/css/theme/simple.css" id="theme">
+
+		<!-- Code syntax highlighting -->
+		<link rel="stylesheet" href="/talks/reveal.js/lib/css/github.css">
+
+		<!-- Local style overrides -->
+		<style type="text/css">
+			.reveal table {
+				width: 80%;
+			}
+		</style>
+
+		<!-- Printing and PDF exports -->
+		<script>
+			var link = document.createElement( 'link' );
+			link.rel = 'stylesheet';
+			link.type = 'text/css';
+			link.href = window.location.search.match( /print-pdf/gi ) ? 'css/print/pdf.css' : 'css/print/paper.css';
+			document.getElementsByTagName( 'head' )[0].appendChild( link );
+		</script>
+
+		<!--[if lt IE 9]>
+		<script src="/talks/reveal.js/lib/js/html5shiv.js"></script>
+		<![endif]-->
+	</head>
+
+	<body>
+
+		<div class="reveal">
+
+			<!-- Any section element inside of this container is displayed as a slide -->
+			<div class="slides">
+				<section>
+				<h2>Writing a Plugin</h2>
+				</section>
+
+				<section>
+				<h3><pre>wp-content/plugins/my-plugin.php</pre></h3>
+
+				<h3><pre>wp-content/plugins/my-plugin/my-plugin.php</pre></h3>
+
+				<pre><code style="language-php" data-trim>
+&lt;?php
+/**
+ * Plugin Name: My Plugin
+ */
+				</code></pre>
+				</section>
+
+				<section>
+				<h3>Plugin Header</h3>
+				</section>
+
+				<section>
+				<pre><code style="language-php" data-trim>
+&lt;?php
+/**
+ * Plugin Name: Health Check
+ * Plugin URI: https://wordpress.org/plugins/health-check/
+ * Description: Checks the health of your WordPress install
+ * Version: 0.1.0
+ * Author: The Health Check Team
+ * Author URI: http://health-check-team.example.com
+ * Text Domain: health-check
+ * Domain Path: /languages
+ */
+				</code></pre>
+				</section>
+
+				<section>
+				<pre><code style="language-php" data-trim>
+&lt;?php
+/**
+ * Plugin Name
+ *
+ * @package     PluginPackage
+ * @author      Your Name
+ * @copyright   2016 Your Name or Company Name
+ * @license     GPL-2.0+
+ *
+ * @wordpress-plugin
+ * Plugin Name: Plugin Name
+ * Plugin URI:  https://example.com/plugin-name
+ * Description: Description of the plugin.
+ * Version:     1.0.0
+ * Author:      Your Name
+ * Author URI:  https://example.com
+ * Text Domain: plugin-name
+ * License:     GPL-2.0+
+ * License URI: http://www.gnu.org/licenses/gpl-2.0.txt
+ */
+				</code></pre>
+				</section>
+
+				<section>
+				<pre><code style="language-php" data-trim>
+&lt;?php
+/**
+ * Plugin Name: My Plugin
+ */
+
+error_log( 'foo' );
+
+echo 'some stuff';
+
+if ( isset( $_GET['foo'] ) ) {
+	die;
+}
+				</code></pre>
+				</section>
+
+				<section>
+				<h3>Filters</h3>
+
+				<aside class="notes">
+				<p>What does a filter do?</p>
+
+				<p>Think of hooks as places where you can run your own functions and change or do things that WordPress isn't already doing.</p>
+				</aside>
+				</section>
+
+				<section>
+				<p><img src="i/filters.png"></p>
+
+				<aside class="notes">
+				<p>Clobbering.</p>
+
+				<p>If you have a filter hook available, then you can do something and/or change something.</p>
+				</aside>
+				</section>
+
+				<section>
+				<pre><code style="language-php" data-trim>
+function the_content( $more_link_text = null, $strip_teaser = false) {
+	$content = get_the_content( $more_link_text, $strip_teaser );
+
+	/**
+	 * Filter the post content.
+	 *
+	 * @since 0.71
+	 *
+	 * @param string $content Content of the current post.
+	 */
+	$content = apply_filters( 'the_content', $content );
+	$content = str_replace( ']]&gt;', ']]&amp;gt;', $content );
+	echo $content;
+}
+				</code></pre>
+				</section>
+
+				<section>
+				<pre><code style="language-php" data-trim>
+function ee_cummings( $str ) {
+	return strtolower( $str );
+}
+
+add_filter( 'the_content', 'ee_cummings' );
+				</code></pre>
+				</section>
+
+				<section>
+				<pre><code style="language-php" data-trim>
+function wp_insert_post( $postarr, $wp_error = false ) {
+	// Stuff happens
+	if ( 'attachment' === $post_type ) {
+		$data = apply_filters( 'wp_insert_attachment_data', $data, $postarr );
+	} else {
+		$data = apply_filters( 'wp_insert_post_data', $data, $postarr );
+	}
+	$data = wp_unslash( $data );
+	// More stuff happens
+}
+				</code></pre>
+				</section>
+
+				<section>
+				<pre><code style="language-php" data-trim>
+function ee_cummings( $data, $postarr ) {
+	$data['post_content'] = strtolower( $data['post_content'] );
+	return $data;
+}
+
+add_filter( 'wp_insert_post_data', 'ee_cummings', 10, 2 );
+				</code></pre>
+				</section>
+
+				<section>
+				<pre><code style="language-php" data-trim>
+class Poetry {
+	static function ee_cummings( $data, $postarr ) {
+		$data['post_content'] = strtolower( $data['post_content'] );
+		return $data;
+	}
+
+	static function init() {
+		add_filter( 'wp_insert_post_data', array( __CLASS__, 'ee_cummings' ), 10, 2 );
+	}
+}
+
+Poetry::init();
+// OR without init()
+add_filter( 'wp_insert_post_data', array( 'Poetry', 'ee_cummings' ), 10, 2 );
+				</code></pre>
+				</section>
+
+				<section>
+				<pre><code style="language-php" data-trim>
+class Poetry {
+	function __construct() {
+		add_filter( 'wp_insert_post_data', array( $this, 'ee_cummings' ), 10, 2 );
+	}
+
+	function ee_cummings( $data, $postarr ) {
+		$data['post_content'] = strtolower( $data['post_content'] );
+		return $data;
+	}
+}
+
+new Poetry;
+// OR without __construct()
+$poetry = new Poetry();
+add_filter( 'wp_insert_post_data', array( $poetry, 'ee_cummings' ), 10, 2 );
+				</code></pre>
+				</section>
+
+				<section>
+				<p>Exercises</p>
+
+				<ul>
+					<li>Write a filter that will uppercase <code>the_content</code>.</li>
+				</ul>
+
+				<pre><code style="language-php" data-trim>
+$content = apply_filters( 'the_content', $content );
+				</code></pre>
+
+				<ul>
+					<li>Write a filter that will disemvowel a comment containing the word "spam".</li>
+				</ul>
+
+				<pre><code style="language-php" data-trim>
+return apply_filters( 'get_comment_text', $comment-&gt;comment_content, $comment, $args );
+				</code></pre>
+				</section>
+
+				<section>
+				<h3>Actions</h3>
+
+				<aside class="notes">
+				<p>No return data -- inputs are generally immutable.</p>
+
+				<p>If there is no action available, use a filter and just return the same value.</p>
+				</aside>
+				</section>
+
+				<section>
+				<p><img src="i/actions.png"></p>
+
+				<aside class="notes">
+				<p>Every action starts with the same input.</p>
+				</aside>
+				</section>
+
+				<section>
+				<pre><code style="language-php" data-trim>
+function wp_insert_post( $postarr, $wp_error = false ) {
+	// Stuff happens
+	do_action( 'save_post', $post_ID, $post, $update );
+	// More stuff happens
+}
+				</code></pre>
+				</section>
+
+				<section>
+				<pre><code style="language-php" data-trim>
+function save_post_error_log( $post_id, $post, $update ) {
+	error_log( print_r( $post, true ) );
+}
+
+add_action( 'save_post', 'save_post_error_log', 10, 3 );
+				</code></pre>
+				</section>
+
+				<section>
+				<pre><code style="language-php" data-trim>
+class Sandbox_Debug {
+	static function save_post( $post_id, $post, $update ) {
+		error_log( print_r( $post, true ) );
+	}
+
+	static function init() {
+		add_action( 'save_post', array( __CLASS__, 'save_post' ), 10, 3 );
+	}
+}
+
+Sandbox_Debug::init();
+// OR without init()
+add_action( 'save_post', array( 'Sandbox_Debug', 'save_post' ), 10, 3 );
+				</code></pre>
+				</section>
+
+				<section>
+				<pre><code style="language-php" data-trim>
+class Sandbox_Debug {
+	function __construct() {
+		add_action( 'save_post', array( $this, 'save_post' ), 10, 3 );
+	}
+
+	function save_post( $post_id, $post, $update ) {
+		error_log( print_r( $post, true ) );
+	}
+}
+
+new Sandbox_Debug;
+// OR without __construct()
+$sandbox_debug = new Sandbox_Debug;
+add_action( 'save_post', array( $sandbox_debug, 'save_post' ), 10, 3 );
+				</code></pre>
+				</section>
+
+				<section>
+				<p>Exercises</p>
+
+				<ul>
+					<li>Write an action that <code>error_log</code>s the post ID when a post is deleted.</li>
+				</ul>
+
+				<pre><code class="language-php" data-trim>
+do_action( 'deleted_post', $postid );
+				</code></pre>
+				</section>
+
+				<section>
+				<h3>Hooks</h3>
+
+				<ul>
+					<li>Used everywhere! Themes, plugins, mu-plugins.</li>
+					<li class="fragment">Drive most interactions with WordPress.</li>
+					<li class="fragment">Allow others to hook into your own plugins.</li>
+					<li class="fragment">Editing core is bad.</li>
+				</ul>
+
+				<aside class="notes">
+				<p>Why do hooks matter so much?</p>
+				</section>
+
+				<section>
+				<h3>Useful Functions</h3>
+				</section>
+
+				<section>
+				<ul>
+					<li><code>__return_false()</code> and <code>__return_true()</code></li>
+				</ul>
+				</section>
+
+				<section>
+				<ul>
+					<li><code>has_filter()</code></li>
+					<li class="fragment"><code>current_filter()</code></li>
+					<li class="fragment"><code>remove_filter()</code> and <code>remove_all_filters()</code></li>
+					<li class="fragment"><code>doing_filter()</code></li>
+				</ul>
+				</section>
+
+				<section>
+				<ul>
+					<li><code>has_action()</code></li>
+					<li class="fragment"><code>did_action()</code></li>
+					<li class="fragment"><code>remove_action()</code> and <code>remove_all_actions()</code></li>
+					<li class="fragment"><code>doing_action()</code></li>
+				</ul>
+				</section>
+
+				<section>
+				<h3>Finding Hooks</h3>
+				</section>
+
+				<section>
+				<p><img src="i/codex.jpg"></p>
+				</section>
+
+				<section>
+				<ul>
+					<li>The Codex</li>
+					<li>Stack Overflow / Google</li>
+					<li class="fragment"><code>grep -R keyword * | grep do_action</code></li>
+					<li class="fragment"><code>grep -R keyword * | grep apply_filters</code></li>
+					<li class="fragment">Read related code</li>
+				</ul>
+				</section>
+
+				<section>
+				<h3>Externals</h3>
+				</section>
+
+				<section>
+				<p>Scripts</p>
+
+				<ul>
+					<li><code>wp_enqueue_script()</code></li>
+					<li class="fragment"><code>wp_dequeue_script()</code></li>
+					<li class="fragment"><code>wp_register_script()</code></li>
+				</ul>
+				</section>
+
+				<section>
+				<p>Styles</p>
+
+				<ul>
+					<li><code>wp_enqueue_style()</code></li>
+					<li class="fragment"><code>wp_dequeue_style()</code></li>
+					<li class="fragment"><code>wp_register_style()</code></li>
+				</ul>
+				</section>
+
+				<section>
+				<pre><code class="language-php" data-trim>
+add_action( 'wp_enqueue_scripts', 'my_register_styles' );
+				</code></pre>
+				</section>
+
+				<section>
+				<h3>Interacting with Users</h3>
+				</section>
+
+				<section>
+				<ul>
+					<li>Add fields to existing methods</li>
+					<li class="fragment">Create new views containing your custom methods</li>
+					<li class="fragment">Accept incoming data from users via AJAX</li>
+				</ul>
+				</section>
+
+				<section>
+				<pre><code class="language-php" data-trim>
+function sandbox_javascript() {
+	$nonce = wp_create_nonce( 'timeplease' );
+	?&gt;
+	&lt;script type="text/javascript"&gt;
+	jQuery( document ).ready( function( $ ) {
+		$( '#timeplease' ).click( function() {
+			$.ajax( {
+				type: 'post',
+				url: '&lt;?php echo admin_url( 'admin-ajax.php' ); ?&gt;',
+				data: {
+					action: 'find_time',
+					_ajax_nonce: '&lt;?php echo $nonce; ?&gt;'
+				}
+			} ).done( function( response, textStatus, jqXHR ) {
+				$( '#timethanks' ).text( response.data.time );
+			} );
+		} );
+	} );
+	&lt;/script&gt;
+	&lt;?php
+}
+
+add_action( 'wp_footer', 'sandbox_javascript' );
+				</code></pre>
+				</section>
+
+				<section>
+				<pre><code class="language-php" data-trim>
+&lt;span id="timeplease"&gt;Time, please?&lt;/span&gt;
+
+&lt;span id="timethanks"&gt;Time should go here&lt;/span&gt;
+				</code></pre>
+				</section>
+
+				<section>
+				<pre><code class="language-php" data-trim>
+function my_get_the_time() {
+	// Check nonce!
+	check_ajax_referer( 'timeplease' );
+
+	$time = time();
+
+	// Using echo json_encode(); die(); is deprecated.
+	if ( $time ) {
+		wp_send_json_success( array( 'time' =&gt; $time ) );
+	} else {
+		wp_send_json_error();
+	}
+}
+
+add_action( 'wp_ajax_find_time', 'my_get_the_time' );
+				</code></pre>
+				</section>
+
+				<section>
+				<p>Time to make some stuff.</p>
+				</section>
+			</div>
+
+		</div>
+
+		<script src="/talks/reveal.js/lib/js/head.min.js"></script>
+		<script src="/talks/reveal.js/js/reveal.js"></script>
+
+		<script>
+
+			// Full list of configuration options available at:
+			// https://github.com/hakimel/reveal.js#configuration
+			Reveal.initialize({
+				controls: true,
+				progress: true,
+				history: true,
+				center: true,
+
+				transition: 'slide', // none/fade/slide/convex/concave/zoom
+
+				// Optional reveal.js plugins
+				dependencies: [
+					{ src: '/talks/reveal.js/lib/js/classList.js', condition: function() { return !document.body.classList; } },
+					{ src: '/talks/reveal.js/plugin/markdown/marked.js', condition: function() { return !!document.querySelector( '[data-markdown]' ); } },
+					{ src: '/talks/reveal.js/plugin/markdown/markdown.js', condition: function() { return !!document.querySelector( '[data-markdown]' ); } },
+					{ src: '/talks/reveal.js/plugin/highlight/highlight.js', async: true, condition: function() { return !!document.querySelector( 'pre code' ); }, callback: function() { hljs.initHighlightingOnLoad(); } },
+					{ src: '/talks/reveal.js/plugin/zoom-js/zoom.js', async: true },
+					{ src: '/talks/reveal.js/plugin/notes/notes.js', async: true }
+				]
+			});
+
+		</script>
+
+	</body>
+</html>
